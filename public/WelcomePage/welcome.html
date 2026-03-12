@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoWise Market – Shop Sustainably</title>
+    <link rel="stylesheet" href="welcome.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+
+    <!-- Grain overlay -->
+    <div class="grain"></div>
+
+    <!-- Custom cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- ═══════════════ NAVBAR ═══════════════ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <span class="leaf-icon">🌿</span>
+            <span class="logo-text">EcoWise<em>Market</em></span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#categories">Shop</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#impact">Impact</a></li>
+            <li><a href="#community">Community</a></li>
+        </ul>
+        <div class="nav-actions">
+            <button class="btn-ghost">Log in</button>
+            <button class="btn-primary">Get Started</button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="#categories">Shop</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#impact">Impact</a></li>
+            <li><a href="#community">Community</a></li>
+            <li><a href="#">Log in</a></li>
+        </ul>
+    </div>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <section class="hero" id="hero">
+        <div class="hero-bg">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <div class="leaf-scatter" id="leafScatter"></div>
+        </div>
+
+        <div class="hero-content">
+            <div class="hero-badge reveal">
+                <span class="pulse-dot"></span>
+                🌍 Carbon-Neutral Shipping Available
+            </div>
+
+            <h1 class="hero-title reveal delay-1">
+                Shop with the<br />
+                <span class="italic-accent">Planet</span> in Mind
+            </h1>
+
+            <p class="hero-subtitle reveal delay-2">
+                Every product on EcoWise Market is verified for ethical sourcing,
+                fair trade, and environmental responsibility.
+                Track your impact. Make a difference.
+            </p>
+
+            <div class="hero-cta reveal delay-3">
+                <button class="btn-hero-primary" id="exploreBtn">Explore the Market</button>
+                <button class="btn-hero-ghost">
+                    <span class="play-icon">▶</span> How It Works
+                </button>
+            </div>
+
+            <!-- Stats populated by /api/stats via JS -->
+            <div class="hero-stats reveal delay-4">
+                <div class="stat">
+                    <strong id="countTrees">—</strong>
+                    <span>Trees Planted</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <strong id="countPlastic">—</strong>
+                    <span>kg Plastic Saved</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                    <strong id="countCO2">—</strong>
+                    <span>tonnes CO₂ Offset</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual reveal delay-2">
+            <div class="product-card-float card-1">
+                <div class="card-img">🎋</div>
+                <div class="card-info">
+                    <span class="card-name">Bamboo Utensil Set</span>
+                    <span class="card-carbon">🌱 0.2 kg CO₂</span>
+                </div>
+                <span class="badge fair-trade">Fair Trade</span>
+            </div>
+            <div class="product-card-float card-2">
+                <div class="card-img">☀️</div>
+                <div class="card-info">
+                    <span class="card-name">Solar Charger Pro</span>
+                    <span class="card-carbon">🌱 1.1 kg CO₂</span>
+                </div>
+                <span class="badge b-corp">B Corp</span>
+            </div>
+            <div class="product-card-float card-3">
+                <div class="card-img">🌿</div>
+                <div class="card-info">
+                    <span class="card-name">Organic Shampoo Bar</span>
+                    <span class="card-carbon">🌱 0.05 kg CO₂</span>
+                </div>
+                <span class="badge organic">USDA Organic</span>
+            </div>
+            <div class="impact-ring">
+                <svg viewBox="0 0 200 200" class="ring-svg">
+                    <circle cx="100" cy="100" r="80" class="ring-bg" />
+                    <circle cx="100" cy="100" r="80" class="ring-progress" id="ringProgress" />
+                </svg>
+                <div class="ring-center">
+                    <strong>84%</strong>
+                    <span>Green Score</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ MARQUEE ═══════════════ -->
+    <div class="marquee-strip">
+        <div class="marquee-track">
+            <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
+            <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
+            <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
+            <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
+            <!-- duplicate for seamless loop -->
+            <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
+            <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
+            <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
+            <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
+        </div>
+    </div>
+
+    <!-- ═══════════════ CATEGORIES (rendered by JS from /api/categories) ═══════════════ -->
+    <section class="categories" id="categories">
+        <div class="section-header reveal">
+            <span class="section-tag">Browse</span>
+            <h2>Our <em>Sustainable</em> Categories</h2>
+            <p>Every category, every product — verified for the planet.</p>
+        </div>
+        <!-- Cards injected by script.js -->
+        <div class="category-grid" id="categoryGrid">
+            <p class="loading-msg">Loading categories…</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════ FEATURES ═══════════════ -->
+    <section class="features" id="features">
+        <div class="features-inner">
+            <div class="section-header reveal">
+                <span class="section-tag">What Makes Us Different</span>
+                <h2>Features That <em>Matter</em></h2>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feat-icon">🌡️</div>
+                    <h3>Carbon Footprint Tracker</h3>
+                    <p>Every product displays its exact carbon cost — from farm to front door. Offset at checkout via
+                        our reforestation partners.</p>
+                    <div class="feat-tag">Live in cart</div>
+                </div>
+                <div class="feature-card reveal delay-1">
+                    <div class="feat-icon">🏅</div>
+                    <h3>Verified Sustainability Badges</h3>
+                    <p>Interactive third-party certifications (Fair Trade, B Corp, USDA Organic) with one-click
+                        filtering.</p>
+                    <div class="feat-tag">Filter by trust</div>
+                </div>
+                <div class="feature-card reveal delay-2">
+                    <div class="feat-icon">🤖</div>
+                    <h3>Eco-Impact Recommendations</h3>
+                    <p>Our ML engine learns your habits and suggests swaps that reduce your real-world environmental
+                        impact.</p>
+                    <div class="feat-tag">AI-powered</div>
+                </div>
+                <div class="feature-card reveal delay-3">
+                    <div class="feat-icon">⭐</div>
+                    <h3>Community Green Score</h3>
+                    <p>Reviews go beyond stars — shoppers rate packaging, durability, and ethical claims to build an
+                        honest Green Score.</p>
+                    <div class="feat-tag">Community-driven</div>
+                </div>
+                <div class="feature-card reveal delay-1">
+                    <div class="feat-icon">🔄</div>
+                    <h3>Essentials Subscription</h3>
+                    <p>Set-and-forget everyday eco-items with dynamic discounts that grow with your loyalty and green
+                        impact score.</p>
+                    <div class="feat-tag">Save &amp; sustain</div>
+                </div>
+                <div class="feature-card reveal delay-2">
+                    <div class="feat-icon">🏭</div>
+                    <h3>Local Warehouse Routing</h3>
+                    <p>Real-time inventory from the nearest warehouse — minimising shipping emissions. See the carbon
+                        saved before you buy.</p>
+                    <div class="feat-tag">Lowest emissions</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ IMPACT DASHBOARD ═══════════════ -->
+    <section class="impact" id="impact">
+        <div class="impact-left reveal">
+            <span class="section-tag">Your Dashboard</span>
+            <h2>Track Your <em>Impact</em> in Real Time</h2>
+            <p>Every purchase feeds your personal Impact Dashboard — see the plastic you've saved, the CO₂ you've
+                reduced, and the trees you've planted. Earn badges, climb leaderboards, and inspire your community.</p>
+            <ul class="impact-list">
+                <li>🌳 Trees planted via reforestation partners</li>
+                <li>♻️ Plastic saved tracked monthly</li>
+                <li>💨 CO₂ offset with every delivery</li>
+                <li>🏆 Gamified badges &amp; community leaderboards</li>
+            </ul>
+            <button class="btn-primary">See Your Dashboard</button>
+        </div>
+
+        <div class="impact-right reveal delay-2">
+            <div class="dashboard-mock">
+                <div class="dash-header">
+                    <span>🌿 My Impact · 2025</span>
+                    <span class="dash-tier">Eco-Warrior 🏅</span>
+                </div>
+                <div class="dash-stats">
+                    <div class="dash-stat">
+                        <strong class="count-up" data-target="128">0</strong>
+                        <span>Trees Planted</span>
+                        <div class="dash-bar">
+                            <div class="dash-fill" style="width:82%"></div>
+                        </div>
+                    </div>
+                    <div class="dash-stat">
+                        <strong class="count-up" data-target="47">0</strong>
+                        <span>kg Plastic Saved</span>
+                        <div class="dash-bar">
+                            <div class="dash-fill" style="width:63%"></div>
+                        </div>
+                    </div>
+                    <div class="dash-stat">
+                        <strong class="count-up" data-target="320">0</strong>
+                        <span>kg CO₂ Offset</span>
+                        <div class="dash-bar">
+                            <div class="dash-fill" style="width:91%"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dash-badges">
+                    <span class="d-badge">🌱 Planter</span>
+                    <span class="d-badge">♻️ Recycler</span>
+                    <span class="d-badge active">🌍 Global</span>
+                    <span class="d-badge">⚡ Energiser</span>
+                </div>
+                <div class="dash-leaderboard">
+                    <span class="lead-title">Community Rank</span>
+                    <div class="lead-bar">
+                        <div class="lead-you">You — #47</div>
+                        <div class="lead-fill" style="width:73%"></div>
+                    </div>
+                    <span class="lead-note">Top 5% of EcoWise shoppers 🎉</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ COMMUNITY REVIEWS ═══════════════ -->
+    <section class="community" id="community">
+        <div class="section-header reveal">
+            <span class="section-tag">Community</span>
+            <h2>What Our <em>Shoppers</em> Say</h2>
+        </div>
+        <div class="reviews-grid">
+            <div class="review-card reveal">
+                <div class="review-top">
+                    <div class="avatar" style="background:#a8d8b9">A</div>
+                    <div><strong>Amara K.</strong>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                    <span class="green-score">Green 94</span>
+                </div>
+                <p>"The Carbon Tracker blew my mind. I can literally see my impact before checking out. Switched to the
+                    shampoo bar and haven't looked back."</p>
+                <div class="review-tags"><span>Zero Waste</span><span>Verified</span></div>
+            </div>
+            <div class="review-card reveal delay-1">
+                <div class="review-top">
+                    <div class="avatar" style="background:#f4c97e">J</div>
+                    <div><strong>James T.</strong>
+                        <div class="stars">★★★★★</div>
+                    </div>
+                    <span class="green-score">Green 88</span>
+                </div>
+                <p>"Loved getting the Eco-Impact recommendation to switch from bottled supplements to refillable. Saved
+                    money AND the planet — win-win."</p>
+                <div class="review-tags"><span>AI Picks</span><span>Fair Trade</span></div>
+            </div>
+            <div class="review-card reveal delay-2">
+                <div class="review-top">
+                    <div class="avatar" style="background:#b5cef4">S</div>
+                    <div><strong>Sofia R.</strong>
+                        <div class="stars">★★★★☆</div>
+                    </div>
+                    <span class="green-score">Green 79</span>
+                </div>
+                <p>"The subscription for cleaning concentrates is genius. Ships from a warehouse 8 miles away — the
+                    lowest delivery footprint I've seen on any site."</p>
+                <div class="review-tags"><span>Subscription</span><span>Local Ship</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ CTA BANNER ═══════════════ -->
+    <section class="cta-banner reveal">
+        <div class="cta-inner">
+            <h2>Ready to Shop <em>Sustainably?</em></h2>
+            <p>Join 200,000+ conscious shoppers making a difference one purchase at a time.</p>
+            <div class="cta-row">
+                <input type="email" placeholder="Enter your email…" class="cta-input" id="ctaEmail" />
+                <button class="btn-primary" id="ctaBtn">Join EcoWise</button>
+            </div>
+            <span class="cta-note" id="ctaNote">No spam. Unsubscribe anytime. 🌿</span>
+        </div>
+        <div class="cta-leaf-bg">🍃</div>
+    </section>
+
+    <!-- ═══════════════ FOOTER ═══════════════ -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="footer-brand">
+                <div class="nav-logo" style="margin-bottom:.5rem">
+                    <span class="leaf-icon">🌿</span>
+                    <span class="logo-text">EcoWise<em>Market</em></span>
+                </div>
+                <p>Turning shopping into a force for good — one sustainable choice at a time.</p>
+                <div class="social-row">
+                    <a href="#" aria-label="X / Twitter">𝕏</a>
+                    <a href="#" aria-label="Instagram">📸</a>
+                    <a href="#" aria-label="LinkedIn">in</a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <div>
+                    <h4>Shop</h4>
+                    <a href="#">Home Goods</a><a href="#">Organic Foods</a>
+                    <a href="#">Fashion</a><a href="#">Personal Care</a><a href="#">Green Tech</a>
+                </div>
+                <div>
+                    <h4>Features</h4>
+                    <a href="#">Carbon Tracker</a><a href="#">Sustainability Badges</a>
+                    <a href="#">Impact Dashboard</a><a href="#">Subscriptions</a>
+                </div>
+                <div>
+                    <h4>Company</h4>
+                    <a href="#">About Us</a><a href="#">Our Mission</a>
+                    <a href="#">Partners</a><a href="#">Careers</a><a href="#">Contact</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© 2025 EcoWise Market. All rights reserved.</span>
+            <span>Built carbon-neutrally 🌍</span>
+        </div>
+    </footer>
+
+    <!-- script served as static file by Express -->
+    <script src="welcome.js"></script>
+</body>
+
+</html>
