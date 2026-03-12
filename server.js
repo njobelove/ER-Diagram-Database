@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 
 const app = express();
+const PORT = process.env.PORT || 3000; // Render sets the PORT environment variable
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -11,10 +12,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'WelcomePage', 'Welcome.html'));
 });
 
-// Example API endpoint (replace with your actual logic)
+// Example API endpoint
 app.get('/api/products', (req, res) => {
   res.json({ categories: ['Eco‑Friendly Home', 'Organic Food', 'Sustainable Fashion'] });
 });
 
-// Export the app for Vercel (do NOT call app.listen)
-module.exports = app;
+// Start the server (this is what Render needs)
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
