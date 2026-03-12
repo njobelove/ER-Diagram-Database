@@ -1,8 +1,11 @@
 # ER-Diagram-Database
-An entity relational diagram that display the enties and attribut for a commerce website 
+An entity‑relationship diagram that displays the entities and attributes for an e‑commerce website.
+
 # GlobalMart Database Schema
 
 This document describes the database schema for the GlobalMart e‑commerce platform. It includes all tables, their columns, primary keys, foreign keys, and relationships.
+
+The accompanying Node/Express server serves a static welcome page located under `public/WelcomePage`. When running, visiting `http://localhost:3000` returns `welcome.html`; the server no longer expects `public/index.html`.
 
 ---
 
