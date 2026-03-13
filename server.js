@@ -9,7 +9,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Root route – serve your welcome page
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'WelcomePage', 'Welcome.html'));
+  res.sendFile(path.join(__dirname, 'public', 'WelcomePage', 'welcome.html'));
 });
 
 // Example API endpoint
