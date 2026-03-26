@@ -159,3 +159,6 @@ This table records exchange rates between currencies over time.
 - The `Product_Attributes` table implements a many‑to‑many relationship between products and attributes.
 - `Exchange_Rates` supports historical currency conversion by storing rates with an effective date.
 - The schema is designed to support core e‑commerce functionality: customers, orders, products, inventory, and multi‑currency.
+
+# The hosted link
+https://eco-marketing.vercel.app/
