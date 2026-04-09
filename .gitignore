@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 
@@ -21,3 +22,7 @@ npm-debug.log*
 dist/
 build/
 .vercel/
+=======
+.env
+node_modules/
+>>>>>>> 1c82bfbf00161b159370612423e2b613bd3d3467
