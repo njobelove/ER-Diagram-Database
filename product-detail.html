@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Detail - EcoWise Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+
+  <div class="bg-[#131921] text-white sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="home.html" class="text-2xl font-bold hover:text-[#ff9900]">🌿 EcoWise</a>
+      <a href="cart.html" class="relative"><i class="fas fa-shopping-cart text-xl"></i><span id="cartCount" class="absolute -top-2 -right-3 bg-[#ff9900] text-black rounded-full px-1 text-xs">0</span></a>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 py-8" id="productDetail"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = parseInt(urlParams.get('id'));
+    
+    function loadCartCount() {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cartCount').innerText = count;
+    }
+    
+    function loadProduct() {
+      const products = JSON.parse(localStorage.getItem('products') || '[]');
+      const product = products.find(p => p.id === productId);
+      
+      if (!product) {
+        document.getElementById('productDetail').innerHTML = '<div class="text-center py-12">Product not found. <a href="shop.html" class="text-green-600">Back to Shop</a></div>';
+        return;
+      }
+      
+      document.getElementById('productDetail').innerHTML = `
+        <div class="bg-white rounded-lg shadow p-8">
+          <div class="grid md:grid-cols-2 gap-8">
+            <div class="text-center"><div class="text-9xl">${product.icon || '🌿'}</div></div>
+            <div><h1 class="text-3xl font-bold mb-4">${product.name}</h1>
+            <div class="text-2xl font-bold text-green-700 mb-2">$${product.price}</div>
+            <div class="flex items-center space-x-4 mb-4"><span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">🌱 ${product.carbon || 0.2} kg CO₂</span><span class="text-sm">Stock: ${product.stock}</span></div>
+            <p class="text-gray-600 mb-6">${product.description || 'Sustainable, eco-friendly product that helps reduce your carbon footprint.'}</p>
+            <button onclick="addToCart(${product.id})" class="bg-[#ff9900] text-black px-8 py-3 rounded font-semibold hover:bg-[#fa8900] w-full">Add to Cart</button></div>
+          </div>
+        </div>
+      `;
+    }
+    
+    function addToCart(productId) {
+      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const products = JSON.parse(localStorage.getItem('products') || '[]');
+      const product = products.find(p => p.id === productId);
+      const existing = cart.find(item => item.id === productId);
+      
+      if (existing) {
+        existing.quantity++;
+      } else if (product) {
+        cart.push({ ...product, quantity: 1 });
+      }
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+      loadCartCount();
+      alert('Added to cart!');
+    }
+    
+    loadProduct();
+    loadCartCount();
+  </script>
+</body>
+</html>
