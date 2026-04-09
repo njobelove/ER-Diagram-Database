@@ -3,35 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>EcoWise Market – Admin + Sustainable Shop</title>
+  <title>EcoWise Market – Sustainable Shopping Platform</title>
   
   <!-- Tailwind CSS v3 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Alpine.js for reactive components -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <!-- Font Awesome 6 (free icons) -->
+  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   
-  <!-- External CSS Files -->
-  <link rel="stylesheet" href="./fronted/admin.css">
-  <link rel="stylesheet" href="welcome.css">
-  
   <style>
-    /* Additional merged styles to prevent conflicts */
-    [x-cloak] { display: none !important; }
-    
-    /* Ensure both admin and frontend styles coexist */
-    body.admin-view {
-      background: #e9ecef;
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    /* ========== ADMIN PANEL STYLES ========== */
+    .amazon-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      transition: box-shadow 0.1s ease;
+    }
+    .amazon-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    .amz-btn-primary {
+      background-color: #ff9900;
+      border-color: #ff9900;
+      color: #000;
+    }
+    .amz-btn-primary:hover {
+      background-color: #fa8900;
+    }
+    .amz-btn-secondary {
+      background-color: #f0f2f2;
+      border: 1px solid #d5d9d9;
+      color: #0f1111;
+    }
+    .amz-btn-secondary:hover {
+      background-color: #e3e6e6;
+    }
+    .amz-link {
+      color: #007185;
+    }
+    .amz-link:hover {
+      color: #c7511f;
+      text-decoration: underline;
+    }
+    .sidebar-active {
+      background-color: #232f3e;
+      border-left: 4px solid #ff9900;
+    }
+    .table-amz th {
+      background-color: #f8f9fa;
+      font-weight: 500;
+      color: #1a1f2b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    input, select, textarea {
+      border: 1px solid #d5d9d9;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #ff9900;
+      box-shadow: 0 0 0 3px rgba(255,153,0,0.2);
+    }
+    .badge-status {
+      background: #f0f2f2;
+      border-radius: 12px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 500;
     }
     
-    body.frontend-view {
-      background: #f5f5f5;
+    /* ========== FRONTEND STYLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: none;
+    }
+    
+    body {
       font-family: 'DM Sans', sans-serif;
+      background-color: #fafaf7;
+      color: #1e2a2b;
+      overflow-x: hidden;
+    }
+    
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    .cursor {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #2d6a4f;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+    }
+    
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: #ff9900;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
     }
     
     /* View toggle button */
@@ -39,7 +130,7 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 9999;
+      z-index: 10000;
       background: #ff9900;
       color: #000;
       padding: 12px 20px;
@@ -49,6 +140,7 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
       transition: all 0.3s ease;
       border: none;
+      font-family: 'DM Sans', sans-serif;
     }
     
     .view-toggle:hover {
@@ -56,17 +148,65 @@
       background: #fa8900;
     }
     
-    /* Hide/show views */
-    .admin-container, .frontend-container {
-      transition: opacity 0.3s ease;
+    [x-cloak] {
+      display: none !important;
     }
     
-    .hidden-view {
-      display: none !important;
+    /* Frontend specific styles */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 6rem 2rem 2rem;
+      position: relative;
+    }
+    
+    .btn-primary {
+      background: #2d6a4f;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .section-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer {
+      background: #1a2a2b;
+      color: white;
+      padding: 3rem 2rem 1rem;
+      margin-top: 4rem;
     }
   </style>
 </head>
-<body x-data="adminApp()" x-init="initData()" :class="currentView === 'admin' ? 'admin-view' : 'frontend-view'">
+<body x-data="ecoWiseApp()" x-init="initData()" :class="currentView === 'admin' ? 'admin-view' : ''">
 
   <!-- View Toggle Button -->
   <button class="view-toggle" @click="toggleView">
@@ -75,17 +215,16 @@
   </button>
 
   <!-- ==================== ADMIN PANEL VIEW ==================== -->
-  <div x-show="currentView === 'admin'" x-cloak class="admin-container">
-    <!-- Top Navigation (Amazon-style utility bar) -->
+  <div x-show="currentView === 'admin'" x-cloak>
+    <!-- Admin Top Navigation -->
     <div class="bg-[#232f3e] text-white px-6 py-3 flex items-center justify-between shadow-md sticky top-0 z-20">
       <div class="flex items-center space-x-3">
         <i class="fab fa-amazon text-2xl text-[#ff9900]"></i>
-        <span class="font-bold text-lg tracking-tight">Eco-Wise Marketing</span>
-        <span class="text-xs bg-[#ff9900] text-black px-2 py-0.5 rounded-full ml-2">Admin</span>
+        <span class="font-bold text-lg tracking-tight">Eco-Wise Admin</span>
+        <span class="text-xs bg-[#ff9900] text-black px-2 py-0.5 rounded-full ml-2">Admin Panel</span>
       </div>
       <div class="flex items-center space-x-5 text-sm">
-        <span class="hidden md:inline"><i class="far fa-bell mr-1"></i> Alerts</span>
-        <span><i class="far fa-user-circle mr-1"></i> Admin@ecowise.com</span>
+        <span><i class="far fa-user-circle mr-1"></i> admin@ecowise.com</span>
       </div>
     </div>
 
@@ -102,414 +241,210 @@
             </a>
           </template>
         </nav>
-        <div class="border-t border-gray-200 mt-6 pt-4 px-4 text-xs text-gray-500">
-          <i class="fas fa-cog mr-1"></i> System v2.0 · EcoWise Architecture
-        </div>
       </aside>
 
-      <!-- MAIN CONTENT: dynamic pages -->
-      <main class="flex-1 p-6 md:p-8 overflow-x-auto">
-        <!-- DASHBOARD -->
-        <div x-show="currentPage === 'dashboard'" x-cloak>
-          <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-semibold">Dashboard</h1>
-            <span class="text-sm text-gray-500"><i class="far fa-clock"></i> Live metrics</span>
-          </div>
+      <!-- Admin Main Content -->
+      <main class="flex-1 p-6 md:p-8">
+        <div x-show="currentPage === 'dashboard'">
+          <h1 class="text-2xl font-semibold mb-6">Dashboard</h1>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Recent Orders (30d)</div><div class="text-3xl font-bold mt-1" x-text="dashboardStats.recentOrders"></div></div>
-            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Low Stock Alerts</div><div class="text-3xl font-bold text-amber-600" x-text="dashboardStats.lowStockAlerts"></div></div>
-            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Top Selling Product</div><div class="font-semibold truncate" x-text="dashboardStats.topProduct"></div><div class="text-xs text-gray-400">units sold</div></div>
-            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">System Status</div><div class="font-medium text-green-600"><i class="fas fa-check-circle"></i> Operational</div></div>
-          </div>
-          <div class="grid lg:grid-cols-2 gap-6">
-            <div class="amazon-card p-5"><h2 class="font-semibold text-lg mb-3"><i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i> Low Stock Items</h2><div class="space-y-2"><template x-for="item in lowStockItems" :key="item.sku"><div class="flex justify-between border-b pb-2"><span x-text="item.name"></span><span class="text-red-600 font-medium">Stock: <span x-text="item.qty"></span></span></div></template></div></div>
-            <div class="amazon-card p-5"><h2 class="font-semibold text-lg mb-3"><i class="fas fa-shopping-cart mr-2"></i> Recent Orders</h2><div class="space-y-2"><template x-for="order in recentOrdersList" :key="order.id"><div class="flex justify-between text-sm"><span>#<span x-text="order.id"></span> - $<span x-text="order.total"></span></span><span class="badge-status" x-text="order.status"></span></div></template></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Products</div><div class="text-3xl font-bold mt-1" x-text="products.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Orders</div><div class="text-3xl font-bold mt-1" x-text="orders.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Customers</div><div class="text-3xl font-bold mt-1" x-text="customers.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Revenue</div><div class="text-3xl font-bold mt-1">$<span x-text="totalRevenue"></span></div></div>
           </div>
         </div>
-
-        <!-- PRODUCT MANAGEMENT -->
-        <div x-show="currentPage === 'productManagement'" x-cloak>
-          <div class="flex justify-between items-center mb-5"><h1 class="text-2xl font-semibold">Products</h1><button @click="openProductForm(null)" class="amz-btn-primary px-4 py-2 rounded-md text-sm font-medium"><i class="fas fa-plus mr-1"></i> Add Product</button></div>
-          <div class="amazon-card overflow-hidden"><table class="min-w-full divide-y divide-gray-200"><thead class="table-amz"><tr><th class="px-5 py-3 text-left text-xs font-medium">SKU</th><th>Name</th><th>Base Price</th><th>Active</th><th>Attributes</th><th class="text-right">Actions</th></tr></thead><tbody><template x-for="prod in products" :key="prod.id"><tr class="border-b hover:bg-gray-50"><td class="px-5 py-3 text-sm" x-text="prod.sku"></td><td class="px-5 py-3 text-sm font-medium" x-text="prod.name"></td><td class="px-5 py-3 text-sm">$<span x-text="prod.price"></span></td><td class="px-5 py-3"><span :class="prod.active ? 'text-green-600' : 'text-gray-400'" x-text="prod.active ? 'Active' : 'Inactive'"></span></td><td class="px-5 py-3 text-xs" x-text="prod.attributesDisplay || '-'"></td><td class="px-5 py-3 text-right space-x-2"><button @click="openProductForm(prod)" class="text-blue-600 text-sm"><i class="far fa-edit"></i></button><button @click="deleteProduct(prod.id)" class="text-red-500 text-sm ml-2"><i class="far fa-trash-alt"></i></button></td></tr></template></tbody></table></div>
-        </div>
-
-        <!-- ADD/EDIT PRODUCT -->
-        <div x-show="currentPage === 'addEditProduct'" x-cloak>
-          <div class="flex items-center gap-3 mb-5"><button @click="currentPage = 'productManagement'" class="amz-btn-secondary px-3 py-1 rounded"><i class="fas fa-arrow-left"></i> Back</button><h1 class="text-2xl font-semibold" x-text="editingProduct ? 'Edit Product' : 'Add New Product'"></h1></div>
-          <div class="amazon-card p-6 max-w-3xl"><form @submit.prevent="saveProduct">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5"><div><label class="block text-sm font-medium">SKU *</label><input type="text" x-model="productForm.sku" required class="w-full"></div><div><label class="block text-sm font-medium">Product Name</label><input type="text" x-model="productForm.name" required class="w-full"></div><div><label class="block text-sm font-medium">Base Price ($)</label><input type="number" step="0.01" x-model="productForm.price" required class="w-full"></div><div><label class="block text-sm font-medium">Status</label><select x-model="productForm.active" class="w-full"><option value="1">Active</option><option value="0">Inactive</option></select></div><div class="md:col-span-2"><label class="block text-sm font-medium">Assign Attributes</label><textarea rows="2" x-model="productForm.attrRaw" class="w-full" placeholder="size: Large, material: Recycled Polyester"></textarea></div></div>
-            <div class="flex justify-end space-x-3 mt-6"><button type="button" @click="currentPage='productManagement'" class="amz-btn-secondary px-4 py-2 rounded">Cancel</button><button type="submit" class="amz-btn-primary px-5 py-2 rounded">Save Product</button></div>
-          </form></div>
-        </div>
-
-        <!-- Other admin pages (simplified for brevity) -->
-        <div x-show="currentPage === 'attributeManagement'" x-cloak><div class="flex justify-between"><h1 class="text-2xl font-semibold">Custom Attributes</h1><button @click="addNewAttribute()" class="amz-btn-primary px-3 py-1 text-sm rounded"><i class="fas fa-plus"></i> New Attribute</button></div><div class="amazon-card mt-5 p-5"><div class="space-y-4"><template x-for="(attr, idx) in attributeList" :key="attr.id"><div class="border-b pb-3 flex justify-between items-center"><div><span class="font-semibold" x-text="attr.name"></span><span class="text-gray-500 text-sm ml-3">values: <span x-text="attr.values.join(', ') || '—'"></span></span></div><div><button @click="editAttributePrompt(attr)" class="text-blue-600 text-sm mr-2"><i class="far fa-edit"></i></button><button @click="deleteAttribute(attr.id)" class="text-red-500"><i class="far fa-trash-alt"></i></button></div></div></template></div></div></div>
         
-        <div x-show="currentPage === 'inventoryOverview'" x-cloak><h1 class="text-2xl font-semibold mb-4">Inventory Overview</h1><div class="amazon-card p-4">Inventory management interface would appear here...</div></div>
-        <div x-show="currentPage === 'orderManagement'" x-cloak><h1 class="text-2xl font-semibold">Order Management</h1><div class="amazon-card p-4 mt-4">Orders list and management interface...</div></div>
-        <div x-show="currentPage === 'currencyManagement'" x-cloak><h1 class="text-2xl font-semibold">Currency & Exchange Rates</h1><div class="amazon-card p-4 mt-4">Currency management interface...</div></div>
-        <div x-show="currentPage === 'loyaltyTiers'" x-cloak><h1 class="text-2xl font-semibold">Loyalty Tiers</h1><div class="amazon-card p-4 mt-4">Tier management interface...</div></div>
-        <div x-show="currentPage === 'systemConfig'" x-cloak><h1 class="text-2xl font-semibold">System Configuration</h1><div class="amazon-card p-4 mt-4">System settings...</div></div>
-        <div x-show="currentPage === 'reports'" x-cloak><h1 class="text-2xl font-semibold">Reports</h1><div class="amazon-card p-4 mt-4">Sales and analytics reports...</div></div>
+        <div x-show="currentPage === 'productManagement'">
+          <div class="flex justify-between items-center mb-5"><h1 class="text-2xl font-semibold">Products</h1><button @click="openProductForm(null)" class="amz-btn-primary px-4 py-2 rounded-md"><i class="fas fa-plus mr-1"></i> Add Product</button></div>
+          <div class="amazon-card overflow-hidden">
+            <table class="min-w-full">
+              <thead class="table-amz"><tr><th class="px-5 py-3 text-left">SKU</th><th>Name</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <template x-for="prod in products" :key="prod.id">
+                  <tr class="border-b"><td class="px-5 py-3" x-text="prod.sku"></td><td class="px-5 py-3" x-text="prod.name"></td><td class="px-5 py-3">$<span x-text="prod.price"></span></td><td class="px-5 py-3"><span :class="prod.active ? 'text-green-600' : 'text-gray-400'" x-text="prod.active ? 'Active' : 'Inactive'"></span></td><td class="px-5 py-3"><button @click="openProductForm(prod)" class="text-blue-600 mr-2">Edit</button><button @click="deleteProduct(prod.id)" class="text-red-500">Delete</button></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div x-show="currentPage === 'addEditProduct'">
+          <button @click="currentPage = 'productManagement'" class="amz-btn-secondary px-3 py-1 rounded mb-4">← Back</button>
+          <div class="amazon-card p-6 max-w-2xl">
+            <h2 class="text-xl font-semibold mb-4" x-text="editingProduct ? 'Edit Product' : 'Add Product'"></h2>
+            <form @submit.prevent="saveProduct">
+              <div class="space-y-4">
+                <input type="text" x-model="productForm.sku" placeholder="SKU" required class="w-full">
+                <input type="text" x-model="productForm.name" placeholder="Product Name" required class="w-full">
+                <input type="number" step="0.01" x-model="productForm.price" placeholder="Price" required class="w-full">
+                <select x-model="productForm.active" class="w-full"><option value="1">Active</option><option value="0">Inactive</option></select>
+                <div class="flex gap-3"><button type="button" @click="currentPage='productManagement'" class="amz-btn-secondary px-4 py-2 rounded">Cancel</button><button type="submit" class="amz-btn-primary px-4 py-2 rounded">Save</button></div>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div x-show="currentPage === 'orderManagement'"><h1 class="text-2xl font-semibold">Orders</h1><div class="amazon-card mt-4 p-4"><table class="min-w-full"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody><template x-for="order in orders"><tr><td class="p-2">#<span x-text="order.id"></span></td><td x-text="order.customerName"></td><td>$<span x-text="order.total"></span></td><td x-text="order.status"></td></tr></template></tbody></table></div></div>
+        
+        <div x-show="currentPage === 'systemConfig'"><div class="amazon-card p-6"><h2 class="text-xl font-semibold mb-4">System Settings</h2><div class="space-y-4"><div><label>Site Name</label><input type="text" x-model="sysConfig.siteName" class="w-full"></div><div><label>Default Currency</label><select x-model="sysConfig.defaultCurrency"><option>USD</option><option>EUR</option></select></div><button @click="saveSysConfig" class="amz-btn-primary px-4 py-2 rounded">Save</button></div></div></div>
       </main>
     </div>
-
-    <!-- Stock adjustment modal -->
-    <div x-show="stockAdjustModalOpen" x-cloak class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" @click.away="stockAdjustModalOpen=false"><div class="bg-white p-6 rounded-lg w-96"><h3 class="font-bold">Adjust Stock</h3><p x-text="'Product: '+adjustItem?.productName"></p><input type="number" x-model="adjustQty" class="w-full border mt-2 p-2"><div class="flex justify-end mt-4 space-x-2"><button @click="stockAdjustModalOpen=false" class="amz-btn-secondary px-3 py-1">Cancel</button><button @click="saveStockAdjustment" class="amz-btn-primary px-3 py-1">Update</button></div></div></div>
   </div>
 
   <!-- ==================== FRONTEND STORE VIEW ==================== -->
-  <div x-show="currentView === 'frontend'" x-cloak class="frontend-container">
-    <!-- Grain overlay -->
-    <div class="grain"></div>
-
+  <div x-show="currentView === 'frontend'" x-cloak>
     <!-- Custom cursor -->
     <div class="cursor" id="cursor"></div>
     <div class="cursor-dot" id="cursorDot"></div>
 
-    <!-- NAVBAR -->
-    <nav class="navbar" id="navbar">
-      <div class="nav-logo">
-        <span class="leaf-icon">🌿</span>
-        <span class="logo-text">EcoWise<em>Market</em></span>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#categories">Shop</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#impact">Impact</a></li>
-        <li><a href="#community">Community</a></li>
-      </ul>
-      <div class="nav-actions">
-        <button class="btn-ghost">Log in</button>
-        <button class="btn-primary">Get Started</button>
-        <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
-          <span></span><span></span><span></span>
-        </button>
-      </div>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-logo"><span class="leaf-icon">🌿</span><span class="logo-text">EcoWise<em>Market</em></span></div>
+      <ul class="nav-links"><li><a href="#">Shop</a></li><li><a href="#">Features</a></li><li><a href="#">Impact</a></li><li><a href="#">Community</a></li></ul>
+      <div class="nav-actions"><button class="btn-ghost">Log in</button><button class="btn-primary">Get Started</button></div>
     </nav>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-      <ul>
-        <li><a href="#categories">Shop</a></li>
-        <li><a href="#features">Features</a></li>
-        <li><a href="#impact">Impact</a></li>
-        <li><a href="#community">Community</a></li>
-        <li><a href="#">Log in</a></li>
-      </ul>
-    </div>
-
-    <!-- HERO SECTION -->
-    <section class="hero" id="hero">
-      <div class="hero-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-        <div class="leaf-scatter" id="leafScatter"></div>
-      </div>
+    <!-- Hero Section -->
+    <section class="hero">
       <div class="hero-content">
-        <div class="hero-badge reveal">
-          <span class="pulse-dot"></span>
-          🌍 Carbon-Neutral Shipping Available
-        </div>
-        <h1 class="hero-title reveal delay-1">
-          Shop with the<br />
-          <span class="italic-accent">Planet</span> in Mind
-        </h1>
-        <p class="hero-subtitle reveal delay-2">
-          Every product on EcoWise Market is verified for ethical sourcing,
-          fair trade, and environmental responsibility.
-          Track your impact. Make a difference.
-        </p>
-        <div class="hero-cta reveal delay-3">
-          <button class="btn-hero-primary" id="exploreBtn">Explore the Market</button>
-          <button class="btn-hero-ghost">
-            <span class="play-icon">▶</span> How It Works
-          </button>
-        </div>
-        <div class="hero-stats reveal delay-4">
-          <div class="stat">
-            <strong id="countTrees">—</strong>
-            <span>Trees Planted</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <strong id="countPlastic">—</strong>
-            <span>kg Plastic Saved</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat">
-            <strong id="countCO2">—</strong>
-            <span>tonnes CO₂ Offset</span>
-          </div>
-        </div>
-      </div>
-      <div class="hero-visual reveal delay-2">
-        <div class="product-card-float card-1">
-          <div class="card-img">🎋</div>
-          <div class="card-info">
-            <span class="card-name">Bamboo Utensil Set</span>
-            <span class="card-carbon">🌱 0.2 kg CO₂</span>
-          </div>
-          <span class="badge fair-trade">Fair Trade</span>
-        </div>
-        <div class="product-card-float card-2">
-          <div class="card-img">☀️</div>
-          <div class="card-info">
-            <span class="card-name">Solar Charger Pro</span>
-            <span class="card-carbon">🌱 1.1 kg CO₂</span>
-          </div>
-          <span class="badge b-corp">B Corp</span>
-        </div>
-        <div class="product-card-float card-3">
-          <div class="card-img">🌿</div>
-          <div class="card-info">
-            <span class="card-name">Organic Shampoo Bar</span>
-            <span class="card-carbon">🌱 0.05 kg CO₂</span>
-          </div>
-          <span class="badge organic">USDA Organic</span>
-        </div>
-        <div class="impact-ring">
-          <svg viewBox="0 0 200 200" class="ring-svg">
-            <circle cx="100" cy="100" r="80" class="ring-bg" />
-            <circle cx="100" cy="100" r="80" class="ring-progress" id="ringProgress" />
-          </svg>
-          <div class="ring-center">
-            <strong>84%</strong>
-            <span>Green Score</span>
-          </div>
-        </div>
-      </div>
-      <div class="scroll-indicator">
-        <span>Scroll</span>
-        <div class="scroll-line"></div>
-      </div>
-    </section>
-
-    <!-- MARQUEE -->
-    <div class="marquee-strip">
-      <div class="marquee-track">
-        <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
-        <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
-        <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
-        <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
-      </div>
-    </div>
-
-    <!-- CATEGORIES SECTION -->
-    <section class="categories" id="categories">
-      <div class="section-header reveal">
-        <span class="section-tag">Browse</span>
-        <h2>Our <em>Sustainable</em> Categories</h2>
-        <p>Every category, every product — verified for the planet.</p>
-      </div>
-      <div class="category-grid" id="categoryGrid">
-        <p class="loading-msg">Loading categories…</p>
-      </div>
-    </section>
-
-    <!-- FEATURES SECTION -->
-    <section class="features" id="features">
-      <div class="features-inner">
-        <div class="section-header reveal">
-          <span class="section-tag">What Makes Us Different</span>
-          <h2>Features That <em>Matter</em></h2>
-        </div>
-        <div class="features-grid">
-          <div class="feature-card reveal"><div class="feat-icon">🌡️</div><h3>Carbon Footprint Tracker</h3><p>Every product displays its exact carbon cost — from farm to front door.</p><div class="feat-tag">Live in cart</div></div>
-          <div class="feature-card reveal delay-1"><div class="feat-icon">🏅</div><h3>Verified Sustainability Badges</h3><p>Interactive third-party certifications with one-click filtering.</p><div class="feat-tag">Filter by trust</div></div>
-          <div class="feature-card reveal delay-2"><div class="feat-icon">🤖</div><h3>Eco-Impact Recommendations</h3><p>ML engine learns your habits and suggests swaps.</p><div class="feat-tag">AI-powered</div></div>
-          <div class="feature-card reveal delay-3"><div class="feat-icon">⭐</div><h3>Community Green Score</h3><p>Reviews beyond stars for honest sustainability ratings.</p><div class="feat-tag">Community-driven</div></div>
-          <div class="feature-card reveal delay-1"><div class="feat-icon">🔄</div><h3>Essentials Subscription</h3><p>Set-and-forget everyday eco-items with dynamic discounts.</p><div class="feat-tag">Save & sustain</div></div>
-          <div class="feature-card reveal delay-2"><div class="feat-icon">🏭</div><h3>Local Warehouse Routing</h3><p>Real-time inventory from nearest warehouse.</p><div class="feat-tag">Lowest emissions</div></div>
+        <h1 class="hero-title">Shop with the <span class="italic-accent">Planet</span> in Mind</h1>
+        <p class="hero-subtitle">Every product on EcoWise Market is verified for ethical sourcing, fair trade, and environmental responsibility.</p>
+        <div class="hero-cta"><button class="btn-hero-primary">Explore the Market</button></div>
+        <div class="hero-stats">
+          <div class="stat"><strong x-text="stats.treesPlanted"></strong><span>Trees Planted</span></div>
+          <div class="stat"><strong x-text="stats.plasticSaved"></strong><span>kg Plastic Saved</span></div>
+          <div class="stat"><strong x-text="stats.co2Offset"></strong><span>tonnes CO₂ Offset</span></div>
         </div>
       </div>
     </section>
 
-    <!-- IMPACT DASHBOARD -->
-    <section class="impact" id="impact">
-      <div class="impact-left reveal">
-        <span class="section-tag">Your Dashboard</span>
-        <h2>Track Your <em>Impact</em> in Real Time</h2>
-        <p>Every purchase feeds your personal Impact Dashboard.</p>
-        <ul class="impact-list">
-          <li>🌳 Trees planted via reforestation partners</li>
-          <li>♻️ Plastic saved tracked monthly</li>
-          <li>💨 CO₂ offset with every delivery</li>
-          <li>🏆 Gamified badges & community leaderboards</li>
-        </ul>
-        <button class="btn-primary">See Your Dashboard</button>
-      </div>
-      <div class="impact-right reveal delay-2">
-        <div class="dashboard-mock">
-          <div class="dash-header"><span>🌿 My Impact · 2025</span><span class="dash-tier">Eco-Warrior 🏅</span></div>
-          <div class="dash-stats">
-            <div class="dash-stat"><strong class="count-up" data-target="128">0</strong><span>Trees Planted</span><div class="dash-bar"><div class="dash-fill" style="width:82%"></div></div></div>
-            <div class="dash-stat"><strong class="count-up" data-target="47">0</strong><span>kg Plastic Saved</span><div class="dash-bar"><div class="dash-fill" style="width:63%"></div></div></div>
-            <div class="dash-stat"><strong class="count-up" data-target="320">0</strong><span>kg CO₂ Offset</span><div class="dash-bar"><div class="dash-fill" style="width:91%"></div></div></div>
-          </div>
-          <div class="dash-badges">
-            <span class="d-badge">🌱 Planter</span>
-            <span class="d-badge">♻️ Recycler</span>
-            <span class="d-badge active">🌍 Global</span>
-            <span class="d-badge">⚡ Energiser</span>
-          </div>
-          <div class="dash-leaderboard">
-            <span class="lead-title">Community Rank</span>
-            <div class="lead-bar"><div class="lead-you">You — #47</div><div class="lead-fill" style="width:73%"></div></div>
-            <span class="lead-note">Top 5% of EcoWise shoppers 🎉</span>
-          </div>
-        </div>
+    <!-- Categories -->
+    <section class="categories">
+      <div class="section-header"><h2>Our <em>Sustainable</em> Categories</h2></div>
+      <div class="category-grid">
+        <template x-for="cat in categories" :key="cat.id">
+          <div class="amazon-card p-6 text-center"><div class="text-4xl mb-3" x-text="cat.icon"></div><h3 class="font-bold" x-text="cat.name"></h3><p class="text-sm text-gray-600" x-text="cat.description"></p></div>
+        </template>
       </div>
     </section>
 
-    <!-- COMMUNITY REVIEWS -->
-    <section class="community" id="community">
-      <div class="section-header reveal">
-        <span class="section-tag">Community</span>
-        <h2>What Our <em>Shoppers</em> Say</h2>
-      </div>
-      <div class="reviews-grid">
-        <div class="review-card reveal"><div class="review-top"><div class="avatar" style="background:#a8d8b9">A</div><div><strong>Amara K.</strong><div class="stars">★★★★★</div></div><span class="green-score">Green 94</span></div><p>"The Carbon Tracker blew my mind. I can literally see my impact before checking out."</p><div class="review-tags"><span>Zero Waste</span><span>Verified</span></div></div>
-        <div class="review-card reveal delay-1"><div class="review-top"><div class="avatar" style="background:#f4c97e">J</div><div><strong>James T.</strong><div class="stars">★★★★★</div></div><span class="green-score">Green 88</span></div><p>"Loved getting the Eco-Impact recommendation to switch to refillable products."</p><div class="review-tags"><span>AI Picks</span><span>Fair Trade</span></div></div>
-        <div class="review-card reveal delay-2"><div class="review-top"><div class="avatar" style="background:#b5cef4">S</div><div><strong>Sofia R.</strong><div class="stars">★★★★☆</div></div><span class="green-score">Green 79</span></div><p>"The subscription for cleaning concentrates is genius. Lowest delivery footprint I've seen."</p><div class="review-tags"><span>Subscription</span><span>Local Ship</span></div></div>
+    <!-- Features -->
+    <section class="features">
+      <div class="section-header"><h2>Features That <em>Matter</em></h2></div>
+      <div class="category-grid">
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🌡️</div><h3 class="font-bold">Carbon Footprint Tracker</h3><p class="text-sm">Every product displays its exact carbon cost</p></div>
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🏅</div><h3 class="font-bold">Verified Sustainability Badges</h3><p class="text-sm">Third-party certifications you can trust</p></div>
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🤖</div><h3 class="font-bold">Eco-Impact Recommendations</h3><p class="text-sm">AI-powered suggestions to reduce your footprint</p></div>
       </div>
     </section>
 
-    <!-- CTA BANNER -->
-    <section class="cta-banner reveal">
-      <div class="cta-inner">
-        <h2>Ready to Shop <em>Sustainably?</em></h2>
-        <p>Join 200,000+ conscious shoppers making a difference one purchase at a time.</p>
-        <div class="cta-row">
-          <input type="email" placeholder="Enter your email…" class="cta-input" id="ctaEmail" />
-          <button class="btn-primary" id="ctaBtn">Join EcoWise</button>
-        </div>
-        <span class="cta-note" id="ctaNote">No spam. Unsubscribe anytime. 🌿</span>
-      </div>
-      <div class="cta-leaf-bg">🍃</div>
-    </section>
-
-    <!-- FOOTER -->
+    <!-- Footer -->
     <footer class="footer">
-      <div class="footer-top">
-        <div class="footer-brand">
-          <div class="nav-logo" style="margin-bottom:.5rem"><span class="leaf-icon">🌿</span><span class="logo-text">EcoWise<em>Market</em></span></div>
-          <p>Turning shopping into a force for good — one sustainable choice at a time.</p>
-          <div class="social-row"><a href="#" aria-label="X / Twitter">𝕏</a><a href="#" aria-label="Instagram">📸</a><a href="#" aria-label="LinkedIn">in</a></div>
-        </div>
-        <div class="footer-links">
-          <div><h4>Shop</h4><a href="#">Home Goods</a><a href="#">Organic Foods</a><a href="#">Fashion</a><a href="#">Personal Care</a><a href="#">Green Tech</a></div>
-          <div><h4>Features</h4><a href="#">Carbon Tracker</a><a href="#">Sustainability Badges</a><a href="#">Impact Dashboard</a><a href="#">Subscriptions</a></div>
-          <div><h4>Company</h4><a href="#">About Us</a><a href="#">Our Mission</a><a href="#">Partners</a><a href="#">Careers</a><a href="#">Contact</a></div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <span>© 2025 EcoWise Market. All rights reserved.</span>
-        <span>Built carbon-neutrally 🌍</span>
-      </div>
+      <div class="footer-top"><div class="footer-brand"><span class="logo-text">EcoWise<em>Market</em></span><p>Turning shopping into a force for good</p></div></div>
+      <div class="footer-bottom"><span>© 2025 EcoWise Market. All rights reserved.</span><span>Built carbon-neutrally 🌍</span></div>
     </footer>
   </div>
 
-  <!-- External JavaScript Files -->
-  <script src="./fronted/admin.js"></script>
-  <script src="welcome.js"></script>
-  
   <script>
-    // Additional merged functionality
-    function adminApp() {
+    function ecoWiseApp() {
       return {
-        currentView: 'frontend', // 'admin' or 'frontend'
+        currentView: 'frontend',
         currentPage: 'dashboard',
         menuItems: [
           { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-line' },
           { id: 'productManagement', label: 'Product Management', icon: 'fas fa-box' },
-          { id: 'attributeManagement', label: 'Attributes', icon: 'fas fa-tags' },
-          { id: 'inventoryOverview', label: 'Inventory & Warehouses', icon: 'fas fa-warehouse' },
           { id: 'orderManagement', label: 'Orders', icon: 'fas fa-truck' },
-          { id: 'currencyManagement', label: 'Currencies & FX', icon: 'fas fa-dollar-sign' },
-          { id: 'loyaltyTiers', label: 'Loyalty & Customers', icon: 'fas fa-gem' },
-          { id: 'systemConfig', label: 'System Config', icon: 'fas fa-cog' },
-          { id: 'reports', label: 'Reports', icon: 'fas fa-chart-simple' }
+          { id: 'systemConfig', label: 'Settings', icon: 'fas fa-cog' }
         ],
         products: [],
-        warehouses: [],
-        inventoryItems: [],
         orders: [],
-        currencies: [],
-        exchangeRates: [],
-        loyaltyTiers: [],
         customers: [],
-        attributeList: [],
-        productForm: { id: null, sku: '', name: '', price: 0, active: 1, attrRaw: '' },
+        productForm: { id: null, sku: '', name: '', price: 0, active: 1 },
         editingProduct: null,
-        inventorySearch: '',
-        stockAdjustModalOpen: false,
-        adjustItem: null,
-        adjustQty: 0,
-        orderFilterStatus: '',
-        orderFilterDate: '',
-        sysConfig: { siteName: 'EcoWise Market', defaultCurrency: 'USD', timeZone: 'America/New_York' },
-        reportData: 'Click any report button to generate sample insights.',
-        dashboardStats: { recentOrders: 0, lowStockAlerts: 0, topProduct: 'N/A' },
-        lowStockItems: [],
-        recentOrdersList: [],
+        sysConfig: { siteName: 'EcoWise Market', defaultCurrency: 'USD' },
+        categories: [],
+        stats: { treesPlanted: 12480, plasticSaved: 4750, co2Offset: 320 },
         
-        initData() {
-          // Sample Products
-          this.products = [
-            { id: 1, sku: 'BAM-001', name: 'Bamboo Utensil Set', price: 24.99, active: true, attributes: [{ name: 'Material', value: 'Bamboo' }], attributesDisplay: 'Material: Bamboo' },
-            { id: 2, sku: 'SOL-002', name: 'Solar Charger Pro', price: 59.99, active: true, attributes: [{ name: 'Type', value: 'Solar' }], attributesDisplay: 'Type: Solar' }
-          ];
-          this.warehouses = [{ id: 1, name: 'Green Warehouse East', location: 'New York, NY', capacity: 10000 }];
-          this.inventoryItems = [{ id: 101, productId: 1, productName: 'Bamboo Utensil Set', sku: 'BAM-001', warehouse: 'Green Warehouse East', qty: 45, timestamp: '2025-04-01' }];
-          this.orders = [{ id: 1001, customerName: 'Eco Shopper', date: '2025-04-07', total: 84.98, status: 'Paid' }];
-          this.currencies = [{ code: 'USD', name: 'US Dollar', symbol: '$' }];
-          this.exchangeRates = [];
-          this.loyaltyTiers = [{ id: 1, name: 'Bronze', discountPercent: 5, minSpend: 100 }];
-          this.customers = [{ id: 1, name: 'John Doe', tierId: 1, totalSpend: 250 }];
-          this.attributeList = [{ id: 1, name: 'Material', values: ['Bamboo', 'Recycled Plastic', 'Organic Cotton'] }];
-          this.updateDashboard();
+        get totalRevenue() {
+          return this.orders.reduce((sum, order) => sum + order.total, 0);
         },
         
-        updateDashboard() {
-          this.dashboardStats.recentOrders = this.orders.length;
-          this.dashboardStats.lowStockAlerts = this.inventoryItems.filter(i => i.qty < 5).length;
-          this.dashboardStats.topProduct = this.products[0]?.name || 'N/A';
-          this.lowStockItems = this.inventoryItems.filter(i => i.qty < 5).map(i => ({ name: i.productName, qty: i.qty, sku: i.sku }));
-          this.recentOrdersList = this.orders.slice(0, 3);
+        initData() {
+          // Sample products
+          this.products = [
+            { id: 1, sku: 'BAM-001', name: 'Bamboo Utensil Set', price: 24.99, active: true },
+            { id: 2, sku: 'SOL-002', name: 'Solar Charger', price: 59.99, active: true },
+            { id: 3, sku: 'ORG-003', name: 'Organic Cotton Tote', price: 19.99, active: true }
+          ];
+          
+          this.orders = [
+            { id: 1001, customerName: 'Alice Johnson', total: 84.98, status: 'Paid', date: '2025-04-07' },
+            { id: 1002, customerName: 'Bob Smith', total: 59.99, status: 'Shipped', date: '2025-04-06' }
+          ];
+          
+          this.customers = [
+            { id: 1, name: 'Alice Johnson', email: 'alice@example.com', totalSpent: 250 },
+            { id: 2, name: 'Bob Smith', email: 'bob@example.com', totalSpent: 180 }
+          ];
+          
+          this.categories = [
+            { id: 1, name: 'Home Goods', icon: '🏠', description: 'Sustainable home essentials' },
+            { id: 2, name: 'Organic Food', icon: '🥬', description: 'Farm-to-table organic' },
+            { id: 3, name: 'Eco Fashion', icon: '👕', description: 'Ethical clothing' }
+          ];
         },
         
         toggleView() {
           this.currentView = this.currentView === 'admin' ? 'frontend' : 'admin';
         },
         
-        filteredInventory() { return this.inventoryItems; },
-        openStockAdjust(item) { this.adjustItem = item; this.adjustQty = item.qty; this.stockAdjustModalOpen = true; },
-        saveStockAdjustment() { if(this.adjustItem){ this.adjustItem.qty = this.adjustQty; this.stockAdjustModalOpen = false; this.updateDashboard(); } },
-        openProductForm(prod) { if(prod){ this.editingProduct = prod; this.productForm = { id: prod.id, sku: prod.sku, name: prod.name, price: prod.price, active: prod.active?1:0, attrRaw: '' }; } else { this.editingProduct = null; this.productForm = { id: null, sku: '', name: '', price: 0, active: 1, attrRaw: '' }; } this.currentPage = 'addEditProduct'; },
-        saveProduct() { let newProd = { id: this.productForm.id || Date.now(), sku: this.productForm.sku, name: this.productForm.name, price: parseFloat(this.productForm.price), active: !!this.productForm.active, attributes: [], attributesDisplay: this.productForm.attrRaw }; if(this.productForm.id){ let idx = this.products.findIndex(p => p.id == this.productForm.id); if(idx !== -1) this.products[idx] = newProd; } else { this.products.push(newProd); } this.currentPage = 'productManagement'; this.updateDashboard(); },
-        deleteProduct(id) { this.products = this.products.filter(p => p.id !== id); },
-        addNewAttribute() { let name = prompt('Attribute name:'); if(name) this.attributeList.push({ id: Date.now(), name, values: [] }); },
-        editAttributePrompt(attr) { let vals = prompt('Enter comma separated values', attr.values.join(',')); if(vals !== null) attr.values = vals.split(',').map(v => v.trim()); },
-        deleteAttribute(id) { this.attributeList = this.attributeList.filter(a => a.id !== id); },
-        openWarehouseModal() { let name = prompt('Warehouse name'); if(name){ let loc = prompt('Location'); let cap = prompt('Capacity'); this.warehouses.push({ id: Date.now(), name, location: loc, capacity: parseInt(cap) || 0 }); } },
-        editWarehouse(wh) { wh.name = prompt('Edit name', wh.name) || wh.name; wh.location = prompt('Location', wh.location); },
-        deleteWarehouse(id) { this.warehouses = this.warehouses.filter(w => w.id !== id); },
-        filteredOrders() { return this.orders; },
-        updateOrderStatus(order) { this.updateDashboard(); },
-        viewOrderDetails(order) { alert(`Order #${order.id}\nCustomer: ${order.customerName}\nTotal: $${order.total}`); },
-        addCurrencyPrompt() { let code = prompt('Currency Code'); if(code) this.currencies.push({ code, name: prompt('Name'), symbol: prompt('Symbol') }); },
-        deleteCurrency(code) { this.currencies = this.currencies.filter(c => c.code !== code); },
-        addExchangeRate() { let curr = prompt('Currency'); let rate = prompt('Rate'); if(curr && rate) this.exchangeRates.push({ id: Date.now(), currency: curr, rate, effectiveDate: new Date().toISOString().slice(0,10) }); },
-        addTier() { let name = prompt('Tier name'); if(name) this.loyaltyTiers.push({ id: Date.now(), name, discountPercent: parseInt(prompt('Discount %'))||0, minSpend: parseInt(prompt('Min Spend'))||0 }); },
-        editTier(tier) { tier.name = prompt('Name', tier.name); tier.discountPercent = parseInt(prompt('Discount', tier.discountPercent)); tier.minSpend = parseInt(prompt('Min spend', tier.minSpend)); },
-        updateCustomerTier(cust) { alert(`Tier updated for ${cust.name}`); },
-        adjustSpending(cust) { let newSpend = prompt('New total spending', cust.totalSpend); if(newSpend) cust.totalSpend = parseFloat(newSpend); },
-        saveSysConfig() { alert('Configuration saved'); },
-        generateReport(type) { this.reportData = `📊 ${type.toUpperCase()} REPORT\nTop selling: ${this.products[0]?.name}\nRevenue: $12,340`; }
+        openProductForm(prod) {
+          if (prod) {
+            this.editingProduct = prod;
+            this.productForm = { ...prod, active: prod.active ? 1 : 0 };
+          } else {
+            this.editingProduct = null;
+            this.productForm = { id: null, sku: '', name: '', price: 0, active: 1 };
+          }
+          this.currentPage = 'addEditProduct';
+        },
+        
+        saveProduct() {
+          if (this.productForm.id) {
+            const index = this.products.findIndex(p => p.id === this.productForm.id);
+            if (index !== -1) {
+              this.products[index] = { ...this.productForm, active: !!this.productForm.active };
+            }
+          } else {
+            this.products.push({
+              ...this.productForm,
+              id: Date.now(),
+              active: !!this.productForm.active
+            });
+          }
+          this.currentPage = 'productManagement';
+        },
+        
+        deleteProduct(id) {
+          this.products = this.products.filter(p => p.id !== id);
+        },
+        
+        saveSysConfig() {
+          alert('Settings saved successfully!');
+        }
       };
     }
+    
+    // Custom cursor functionality
+    document.addEventListener('mousemove', function(e) {
+      const cursor = document.getElementById('cursor');
+      const cursorDot = document.getElementById('cursorDot');
+      if (cursor && cursorDot) {
+        cursor.style.transform = `translate(${e.clientX - 16}px, ${e.clientY - 16}px)`;
+        cursorDot.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
+      }
+    });
   </script>
 </body>
 </html>
