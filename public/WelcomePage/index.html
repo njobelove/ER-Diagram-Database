@@ -1,5 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title><ECO-WISE></ECO-WISE></title>
+  <!-- Tailwind CSS v3 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js for reactive components -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Font Awesome 6 (free icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- External CSS -->
+  <link rel="stylesheet" href="./fronted/admin.css">
+</head>
+<body x-data="adminApp()" x-init="initData()" class="text-gray-800">
+
+  <!-- Top Navigation (Amazon-style utility bar) -->
+  <div class="bg-[#232f3e] text-white px-6 py-3 flex items-center justify-between shadow-md sticky top-0 z-20">
+    <div class="flex items-center space-x-3">
+      <i class="fab fa-amazon text-2xl text-[#ff9900]"></i>
+      <span class="font-bold text-lg tracking-tight">Eco-Wise-Marketing</Eco-Wise-Marketing></span>
+      <span class="text-xs bg-[#ff9900] text-black px-2 py-0.5 rounded-full ml-2">Admin</span>
+    </div>
+    <div class="flex items-center space-x-5 text-sm">
+      <span class="hidden md:inline"><i class="far fa-bell mr-1"></i> Alerts</span>
+      <span><i class="far fa-user-circle mr-1"></i> Admin@amazon</span>
+    </div>
+  </div>
+
+  <div class="flex flex-col md:flex-row">
+    <!-- Sidebar (Amazon left navigation) -->
+    <aside class="w-full md:w-72 bg-white border-r border-gray-200 min-h-screen shadow-sm">
+      <nav class="p-4 space-y-1">
+        <template x-for="item in menuItems" :key="item.id">
+          <a href="#" @click.prevent="currentPage = item.id" 
+             class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all"
+             :class="currentPage === item.id ? 'bg-[#232f3e] text-white sidebar-active' : 'text-gray-700 hover:bg-gray-100'">
+            <i :class="item.icon" class="w-5"></i>
+            <span x-text="item.label"></span>
+          </a>
+        </template>
+      </nav>
+      <div class="border-t border-gray-200 mt-6 pt-4 px-4 text-xs text-gray-500">
+        <i class="fas fa-cog mr-1"></i> System v2.0 · Amazon Architecture
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT: dynamic pages based on currentPage -->
+    <main class="flex-1 p-6 md:p-8 overflow-x-auto">
+      <!-- DASHBOARD -->
+      <div x-show="currentPage === 'dashboard'" x-cloak>
+        <div class="flex justify-between items-center mb-6">
+          <h1 class="text-2xl font-semibold">Dashboard</h1>
+          <span class="text-sm text-gray-500"><i class="far fa-clock"></i> Live metrics</span>
+        </div>
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Recent Orders (30d)</div><div class="text-3xl font-bold mt-1" x-text="dashboardStats.recentOrders"></div></div>
+          <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Low Stock Alerts</div><div class="text-3xl font-bold text-amber-600" x-text="dashboardStats.lowStockAlerts"></div></div>
+          <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Top Selling Product</div><div class="font-semibold truncate" x-text="dashboardStats.topProduct"></div><div class="text-xs text-gray-400">units sold</div></div>
+          <div class="amazon-card p-5"><div class="text-gray-500 text-sm">System Status</div><div class="font-medium text-green-600"><i class="fas fa-check-circle"></i> Operational</div></div>
+        </div>
+        <!-- low stock quick list & recent orders mini -->
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="amazon-card p-5"><h2 class="font-semibold text-lg mb-3"><i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i> Low Stock Items</h2><div class="space-y-2"><template x-for="item in lowStockItems" :key="item.sku"><div class="flex justify-between border-b pb-2"><span x-text="item.name"></span><span class="text-red-600 font-medium">Stock: <span x-text="item.qty"></span></span></div></template></div></div>
+          <div class="amazon-card p-5"><h2 class="font-semibold text-lg mb-3"><i class="fas fa-shopping-cart mr-2"></i> Recent Orders</h2><div class="space-y-2"><template x-for="order in recentOrdersList" :key="order.id"><div class="flex justify-between text-sm"><span>#<span x-text="order.id"></span> - $<span x-text="order.total"></span></span><span class="badge-status" x-text="order.status"></span></div></template></div></div>
+        </div>
+      </div>
+
+      <!-- PRODUCT MANAGEMENT (list) -->
+      <div x-show="currentPage === 'productManagement'" x-cloak>
+        <div class="flex justify-between items-center mb-5"><h1 class="text-2xl font-semibold">Products</h1><button @click="openProductForm(null)" class="amz-btn-primary px-4 py-2 rounded-md text-sm font-medium"><i class="fas fa-plus mr-1"></i> Add Product</button></div>
+        <div class="amazon-card overflow-hidden"><table class="min-w-full divide-y divide-gray-200"><thead class="table-amz"><tr><th class="px-5 py-3 text-left text-xs font-medium">SKU</th><th>Name</th><th>Base Price</th><th>Active</th><th>Attributes</th><th class="text-right">Actions</th></tr></thead><tbody><template x-for="prod in products" :key="prod.id"><tr class="border-b hover:bg-gray-50"><td class="px-5 py-3 text-sm" x-text="prod.sku"></td><td class="px-5 py-3 text-sm font-medium" x-text="prod.name"></td><td class="px-5 py-3 text-sm">$<span x-text="prod.price"></span></td><td class="px-5 py-3"><span :class="prod.active ? 'text-green-600' : 'text-gray-400'" x-text="prod.active ? 'Active' : 'Inactive'"></span></td><td class="px-5 py-3 text-xs" x-text="prod.attributesDisplay || '-'"></td><td class="px-5 py-3 text-right space-x-2"><button @click="openProductForm(prod)" class="text-blue-600 text-sm"><i class="far fa-edit"></i></button><button @click="deleteProduct(prod.id)" class="text-red-500 text-sm ml-2"><i class="far fa-trash-alt"></i></button></td></tr></template></tbody> </table></div>
+      </div>
+
+      <!-- ADD/EDIT PRODUCT modal (dynamic slide) using inline dialog -->
+      <div x-show="currentPage === 'addEditProduct'" x-cloak>
+        <div class="flex items-center gap-3 mb-5"><button @click="currentPage = 'productManagement'" class="amz-btn-secondary px-3 py-1 rounded"><i class="fas fa-arrow-left"></i> Back</button><h1 class="text-2xl font-semibold" x-text="editingProduct ? 'Edit Product' : 'Add New Product'"></h1></div>
+        <div class="amazon-card p-6 max-w-3xl"><form @submit.prevent="saveProduct">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5"><div><label class="block text-sm font-medium">SKU *</label><input type="text" x-model="productForm.sku" required class="w-full"></div><div><label class="block text-sm font-medium">Product Name</label><input type="text" x-model="productForm.name" required class="w-full"></div><div><label class="block text-sm font-medium">Base Price ($)</label><input type="number" step="0.01" x-model="productForm.price" required class="w-full"></div><div><label class="block text-sm font-medium">Status</label><select x-model="productForm.active" class="w-full"><option value="1">Active</option><option value="0">Inactive</option></select></div><div class="md:col-span-2"><label class="block text-sm font-medium">Assign Attributes (comma separated values, e.g. size: Large, material: Cotton)</label><textarea rows="2" x-model="productForm.attrRaw" class="w-full" placeholder="size: Large, material: Recycled Polyester, certification: GOTS"></textarea><p class="text-xs text-gray-500">Use format "key: value" separated by commas</p></div></div>
+          <div class="flex justify-end space-x-3 mt-6"><button type="button" @click="currentPage='productManagement'" class="amz-btn-secondary px-4 py-2 rounded">Cancel</button><button type="submit" class="amz-btn-primary px-5 py-2 rounded">Save Product</button></div>
+        </form></div>
+      </div>
+
+      <!-- ATTRIBUTE MANAGEMENT -->
+      <div x-show="currentPage === 'attributeManagement'" x-cloak>
+        <div class="flex justify-between"><h1 class="text-2xl font-semibold">Custom Attributes</h1><button @click="addNewAttribute()" class="amz-btn-primary px-3 py-1 text-sm rounded"><i class="fas fa-plus"></i> New Attribute</button></div>
+        <div class="amazon-card mt-5 p-5"><div class="space-y-4"><template x-for="(attr, idx) in attributeList" :key="attr.id"><div class="border-b pb-3 flex justify-between items-center"><div><span class="font-semibold" x-text="attr.name"></span><span class="text-gray-500 text-sm ml-3">values: <span x-text="attr.values.join(', ') || '—'"></span></span></div><div><button @click="editAttributePrompt(attr)" class="text-blue-600 text-sm mr-2"><i class="far fa-edit"></i></button><button @click="deleteAttribute(attr.id)" class="text-red-500"><i class="far fa-trash-alt"></i></button></div></div></template></div></div>
+      </div>
+
+      <!-- INVENTORY OVERVIEW + WAREHOUSE MANAGEMENT + STOCK ADJUSTMENT (merged practical view) -->
+      <div x-show="currentPage === 'inventoryOverview'" x-cloak>
+        <h1 class="text-2xl font-semibold mb-4">Inventory Overview</h1><div class="flex gap-4 mb-4"><input type="text" placeholder="Search by product or warehouse" x-model="inventorySearch" class="w-80"><button class="amz-btn-secondary px-3 rounded">🔍 Search</button></div>
+        <div class="amazon-card overflow-auto"><table class="min-w-full"><thead class="table-amz"><tr><th>Product</th><th>SKU</th><th>Warehouse</th><th>Stock Qty</th><th>Last Updated</th><th>Actions</th></tr></thead><tbody><template x-for="item in filteredInventory()" :key="item.id"><tr><td class="p-3" x-text="item.productName"></td><td x-text="item.sku"></td><td x-text="item.warehouse"></td><td><span :class="item.qty < 5 ? 'text-red-600 font-bold' : ''" x-text="item.qty"></span></td><td class="text-xs" x-text="item.timestamp"></td><td><button @click="openStockAdjust(item)" class="amz-link text-sm"><i class="fas fa-edit"></i> Adjust</button></td></tr></template></tbody></table></div>
+        <!-- quick warehouse management card -->
+        <div class="mt-8"><div class="flex justify-between"><h2 class="font-semibold text-lg">Warehouse Management</h2><button @click="openWarehouseModal()" class="amz-btn-primary text-sm px-3 py-1 rounded"><i class="fas fa-warehouse"></i> Add Warehouse</button></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3"><template x-for="wh in warehouses" :key="wh.id"><div class="amazon-card p-4"><div class="font-bold" x-text="wh.name"></div><div class="text-sm text-gray-600" x-text="wh.location"></div><div class="text-xs">Capacity: <span x-text="wh.capacity"></span></div><div class="mt-2"><button @click="editWarehouse(wh)" class="text-xs text-blue-600">Edit</button><button @click="deleteWarehouse(wh.id)" class="text-xs text-red-500 ml-3">Delete</button></div></div></template></div></div>
+      </div>
+
+      <!-- ORDER MANAGEMENT -->
+      <div x-show="currentPage === 'orderManagement'" x-cloak>
+        <div class="flex justify-between"><h1 class="text-2xl font-semibold">Orders</h1><div class="space-x-2"><select x-model="orderFilterStatus"><option value="">All Status</option><option>Paid</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select><input type="date" x-model="orderFilterDate" placeholder="Filter by date"></div></div>
+        <div class="amazon-card mt-4 overflow-auto"><table class="min-w-full"><thead class="table-amz"><tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead><tbody><template x-for="order in filteredOrders()" :key="order.id"><tr><td class="p-3">#<span x-text="order.id"></span></td><td x-text="order.customerName"></td><td x-text="order.date"></td><td>$<span x-text="order.total"></span></td><td><select x-model="order.status" @change="updateOrderStatus(order)" class="text-xs border rounded p-1"><option>Pending</option><option>Paid</option><option>Shipped</option><option>Delivered</option><option>Cancelled</option></select></td><td><button @click="viewOrderDetails(order)" class="amz-link text-sm">Details</button></td></tr></template></tbody></table></div>
+      </div>
+
+      <!-- CURRENCY & EXCHANGE RATE MANAGEMENT (combined compact) -->
+      <div x-show="currentPage === 'currencyManagement'" x-cloak>
+        <h1 class="text-2xl font-semibold">Currencies & Exchange Rates</h1><div class="grid md:grid-cols-2 gap-6 mt-5"><div class="amazon-card p-5"><h2 class="font-bold">Active Currencies</h2><button @click="addCurrencyPrompt()" class="text-sm amz-btn-primary mt-2 mb-3 px-2 py-1">+ Add Currency</button><div><template x-for="cur in currencies" :key="cur.code"><div class="flex justify-between border-b py-2"><span><span x-text="cur.code"></span> - <span x-text="cur.name"></span> (<span x-text="cur.symbol"></span>)</span><button @click="deleteCurrency(cur.code)" class="text-red-500 text-xs">Remove</button></div></template></div></div><div class="amazon-card p-5"><h2 class="font-bold">Historical Exchange Rates (USD base)</h2><button @click="addExchangeRate()" class="amz-btn-primary text-sm px-2 py-1 mb-2">+ Add Rate</button><div><template x-for="rate in exchangeRates" :key="rate.id"><div class="text-sm border-b py-2"><span class="font-medium" x-text="rate.currency"></span>: <span x-text="rate.rate"></span> (eff: <span x-text="rate.effectiveDate"></span>)</div></template></div></div></div>
+      </div>
+
+      <!-- LOYALTY TIER & CUSTOMER LIST -->
+      <div x-show="currentPage === 'loyaltyTiers'" x-cloak><h1 class="text-2xl font-semibold">Loyalty Tiers</h1><button @click="addTier()" class="my-3 amz-btn-primary px-3 py-1 rounded text-sm">+ New Tier</button><div class="grid sm:grid-cols-2 gap-4"><template x-for="tier in loyaltyTiers" :key="tier.id"><div class="amazon-card p-4"><div class="font-bold text-lg" x-text="tier.name"></div><div>Discount: <span x-text="tier.discountPercent"></span>%</div><div>Min Spending: $<span x-text="tier.minSpend"></span></div><button @click="editTier(tier)" class="text-xs text-blue-600">Edit</button></div></template></div><div class="mt-8"><h2 class="font-semibold">Customers & Tiers</h2><div class="amazon-card mt-2"><table class="min-w-full"><thead><tr><th>Customer</th><th>Current Tier</th><th>Total Spending</th><th>Manual Adjust</th></tr></thead><tbody><template x-for="cust in customers" :key="cust.id"><tr><td class="p-2" x-text="cust.name"></td><td><select x-model="cust.tierId" @change="updateCustomerTier(cust)" class="text-xs border rounded"><template x-for="t in loyaltyTiers" :key="t.id"><option :value="t.id" x-text="t.name"></option></template></select></td><td>$<span x-text="cust.totalSpend"></span></td><td><button class="amz-link text-xs" @click="adjustSpending(cust)">Adjust</button></td></tr></template></tbody></table></div></div></div>
+
+      <!-- SYSTEM CONFIGURATION -->
+      <div x-show="currentPage === 'systemConfig'" x-cloak><div class="amazon-card p-6 max-w-2xl"><h2 class="text-xl font-semibold mb-4">General Settings</h2><div class="space-y-4"><div><label>Site Name</label><input type="text" x-model="sysConfig.siteName" class="w-full"></div><div><label>Default Currency</label><select x-model="sysConfig.defaultCurrency"><option>USD</option><option>EUR</option><option>GBP</option></select></div><div><label>Time Zone</label><input type="text" x-model="sysConfig.timeZone"></div><button @click="saveSysConfig" class="amz-btn-primary px-4 py-2 rounded">Save Configuration</button></div></div></div>
+
+      <!-- REPORTS -->
+      <div x-show="currentPage === 'reports'" x-cloak><h1 class="text-2xl font-semibold">Sales Reports</h1><div class="flex space-x-2 my-4"><button @click="generateReport('product')" class="amz-btn-secondary">By Product</button><button @click="generateReport('category')" class="amz-btn-secondary">By Category</button><button @click="generateReport('tier')" class="amz-btn-secondary">By Tier</button><button @click="generateReport('warehouse')" class="amz-btn-secondary">By Warehouse</button><button class="amz-btn-primary"><i class="fas fa-download"></i> Export CSV</button></div><div class="amazon-card p-5"><pre x-text="reportData" class="whitespace-pre-wrap text-sm"></pre></div></div>
+    </main>
+  </div>
+
+  <!-- hidden modal for stock adjustment (simple) using dynamic div -->
+  <div x-show="stockAdjustModalOpen" x-cloak class="fixed inset-0 bg-black/30 flex items-center justify-center z-50" @click.away="stockAdjustModalOpen=false"><div class="bg-white p-6 rounded-lg w-96"><h3 class="font-bold">Adjust Stock</h3><p x-text="'Product: '+adjustItem?.productName"></p><input type="number" x-model="adjustQty" class="w-full border mt-2 p-2"><div class="flex justify-end mt-4 space-x-2"><button @click="stockAdjustModalOpen=false" class="amz-btn-secondary px-3 py-1">Cancel</button><button @click="saveStockAdjustment" class="amz-btn-primary px-3 py-1">Update</button></div></div></div>
+  
+  <!-- External JavaScript -->
+  <script src="./fronted/admin.js"></script>
+</body>
 
 <head>
     <meta charset="UTF-8" />
