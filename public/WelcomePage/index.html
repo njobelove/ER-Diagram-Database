@@ -6,6 +6,10 @@
   <title>EcoWise Market – Sustainable Shopping</title>
   
   <!-- Tailwind CSS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>EcoWise Market – Sustainable Shopping Platform</title>
+  
+  <!-- Tailwind CSS v3 -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Alpine.js -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -285,6 +289,341 @@
         </div>
       </main>
     </div>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ========== ADMIN PANEL STYLES ========== */
+    .amazon-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      transition: box-shadow 0.1s ease;
+    }
+    .amazon-card:hover {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+    }
+    .amz-btn-primary {
+      background-color: #ff9900;
+      border-color: #ff9900;
+      color: #000;
+    }
+    .amz-btn-primary:hover {
+      background-color: #fa8900;
+    }
+    .amz-btn-secondary {
+      background-color: #f0f2f2;
+      border: 1px solid #d5d9d9;
+      color: #0f1111;
+    }
+    .amz-btn-secondary:hover {
+      background-color: #e3e6e6;
+    }
+    .amz-link {
+      color: #007185;
+    }
+    .amz-link:hover {
+      color: #c7511f;
+      text-decoration: underline;
+    }
+    .sidebar-active {
+      background-color: #232f3e;
+      border-left: 4px solid #ff9900;
+    }
+    .table-amz th {
+      background-color: #f8f9fa;
+      font-weight: 500;
+      color: #1a1f2b;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    input, select, textarea {
+      border: 1px solid #d5d9d9;
+      border-radius: 6px;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #ff9900;
+      box-shadow: 0 0 0 3px rgba(255,153,0,0.2);
+    }
+    .badge-status {
+      background: #f0f2f2;
+      border-radius: 12px;
+      padding: 0.2rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    /* ========== FRONTEND STYLES ========== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      cursor: none;
+    }
+    
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: #fafaf7;
+      color: #1e2a2b;
+      overflow-x: hidden;
+    }
+    
+    .grain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+    
+    .cursor {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #2d6a4f;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+    }
+    
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: #ff9900;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    
+    /* View toggle button */
+    .view-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 10000;
+      background: #ff9900;
+      color: #000;
+      padding: 12px 20px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    
+    .view-toggle:hover {
+      transform: scale(1.05);
+      background: #fa8900;
+    }
+    
+    [x-cloak] {
+      display: none !important;
+    }
+    
+    /* Frontend specific styles */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 6rem 2rem 2rem;
+      position: relative;
+    }
+    
+    .btn-primary {
+      background: #2d6a4f;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    .section-header {
+      text-align: center;
+      padding: 4rem 2rem 2rem;
+    }
+    
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer {
+      background: #1a2a2b;
+      color: white;
+      padding: 3rem 2rem 1rem;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body x-data="ecoWiseApp()" x-init="initData()" :class="currentView === 'admin' ? 'admin-view' : ''">
+
+  <!-- View Toggle Button -->
+  <button class="view-toggle" @click="toggleView">
+    <i class="fas" :class="currentView === 'admin' ? 'fa-store' : 'fa-user-shield'"></i>
+    <span x-text="currentView === 'admin' ? ' Switch to Store' : ' Switch to Admin'"></span>
+  </button>
+
+  <!-- ==================== ADMIN PANEL VIEW ==================== -->
+  <div x-show="currentView === 'admin'" x-cloak>
+    <!-- Admin Top Navigation -->
+    <div class="bg-[#232f3e] text-white px-6 py-3 flex items-center justify-between shadow-md sticky top-0 z-20">
+      <div class="flex items-center space-x-3">
+        <i class="fab fa-amazon text-2xl text-[#ff9900]"></i>
+        <span class="font-bold text-lg tracking-tight">Eco-Wise Admin</span>
+        <span class="text-xs bg-[#ff9900] text-black px-2 py-0.5 rounded-full ml-2">Admin Panel</span>
+      </div>
+      <div class="flex items-center space-x-5 text-sm">
+        <span><i class="far fa-user-circle mr-1"></i> admin@ecowise.com</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row">
+      <!-- Sidebar -->
+      <aside class="w-full md:w-72 bg-white border-r border-gray-200 min-h-screen shadow-sm">
+        <nav class="p-4 space-y-1">
+          <template x-for="item in menuItems" :key="item.id">
+            <a href="#" @click.prevent="currentPage = item.id" 
+               class="flex items-center space-x-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all"
+               :class="currentPage === item.id ? 'bg-[#232f3e] text-white sidebar-active' : 'text-gray-700 hover:bg-gray-100'">
+              <i :class="item.icon" class="w-5"></i>
+              <span x-text="item.label"></span>
+            </a>
+          </template>
+        </nav>
+      </aside>
+
+      <!-- Admin Main Content -->
+      <main class="flex-1 p-6 md:p-8">
+        <div x-show="currentPage === 'dashboard'">
+          <h1 class="text-2xl font-semibold mb-6">Dashboard</h1>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Products</div><div class="text-3xl font-bold mt-1" x-text="products.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Orders</div><div class="text-3xl font-bold mt-1" x-text="orders.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Total Customers</div><div class="text-3xl font-bold mt-1" x-text="customers.length"></div></div>
+            <div class="amazon-card p-5"><div class="text-gray-500 text-sm">Revenue</div><div class="text-3xl font-bold mt-1">$<span x-text="totalRevenue"></span></div></div>
+          </div>
+        </div>
+        
+        <div x-show="currentPage === 'productManagement'">
+          <div class="flex justify-between items-center mb-5"><h1 class="text-2xl font-semibold">Products</h1><button @click="openProductForm(null)" class="amz-btn-primary px-4 py-2 rounded-md"><i class="fas fa-plus mr-1"></i> Add Product</button></div>
+          <div class="amazon-card overflow-hidden">
+            <table class="min-w-full">
+              <thead class="table-amz"><tr><th class="px-5 py-3 text-left">SKU</th><th>Name</th><th>Price</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <template x-for="prod in products" :key="prod.id">
+                  <tr class="border-b"><td class="px-5 py-3" x-text="prod.sku"></td><td class="px-5 py-3" x-text="prod.name"></td><td class="px-5 py-3">$<span x-text="prod.price"></span></td><td class="px-5 py-3"><span :class="prod.active ? 'text-green-600' : 'text-gray-400'" x-text="prod.active ? 'Active' : 'Inactive'"></span></td><td class="px-5 py-3"><button @click="openProductForm(prod)" class="text-blue-600 mr-2">Edit</button><button @click="deleteProduct(prod.id)" class="text-red-500">Delete</button></td></tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div x-show="currentPage === 'addEditProduct'">
+          <button @click="currentPage = 'productManagement'" class="amz-btn-secondary px-3 py-1 rounded mb-4">← Back</button>
+          <div class="amazon-card p-6 max-w-2xl">
+            <h2 class="text-xl font-semibold mb-4" x-text="editingProduct ? 'Edit Product' : 'Add Product'"></h2>
+            <form @submit.prevent="saveProduct">
+              <div class="space-y-4">
+                <input type="text" x-model="productForm.sku" placeholder="SKU" required class="w-full">
+                <input type="text" x-model="productForm.name" placeholder="Product Name" required class="w-full">
+                <input type="number" step="0.01" x-model="productForm.price" placeholder="Price" required class="w-full">
+                <select x-model="productForm.active" class="w-full"><option value="1">Active</option><option value="0">Inactive</option></select>
+                <div class="flex gap-3"><button type="button" @click="currentPage='productManagement'" class="amz-btn-secondary px-4 py-2 rounded">Cancel</button><button type="submit" class="amz-btn-primary px-4 py-2 rounded">Save</button></div>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <div x-show="currentPage === 'orderManagement'"><h1 class="text-2xl font-semibold">Orders</h1><div class="amazon-card mt-4 p-4"><table class="min-w-full"><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody><template x-for="order in orders"><tr><td class="p-2">#<span x-text="order.id"></span></td><td x-text="order.customerName"></td><td>$<span x-text="order.total"></span></td><td x-text="order.status"></td></tr></template></tbody></table></div></div>
+        
+        <div x-show="currentPage === 'systemConfig'"><div class="amazon-card p-6"><h2 class="text-xl font-semibold mb-4">System Settings</h2><div class="space-y-4"><div><label>Site Name</label><input type="text" x-model="sysConfig.siteName" class="w-full"></div><div><label>Default Currency</label><select x-model="sysConfig.defaultCurrency"><option>USD</option><option>EUR</option></select></div><button @click="saveSysConfig" class="amz-btn-primary px-4 py-2 rounded">Save</button></div></div></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ==================== FRONTEND STORE VIEW ==================== -->
+  <div x-show="currentView === 'frontend'" x-cloak>
+    <!-- Custom cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-dot" id="cursorDot"></div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="nav-logo"><span class="leaf-icon">🌿</span><span class="logo-text">EcoWise<em>Market</em></span></div>
+      <ul class="nav-links"><li><a href="#">Shop</a></li><li><a href="#">Features</a></li><li><a href="#">Impact</a></li><li><a href="#">Community</a></li></ul>
+      <div class="nav-actions"><button class="btn-ghost">Log in</button><button class="btn-primary">Get Started</button></div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1 class="hero-title">Shop with the <span class="italic-accent">Planet</span> in Mind</h1>
+        <p class="hero-subtitle">Every product on EcoWise Market is verified for ethical sourcing, fair trade, and environmental responsibility.</p>
+        <div class="hero-cta"><button class="btn-hero-primary">Explore the Market</button></div>
+        <div class="hero-stats">
+          <div class="stat"><strong x-text="stats.treesPlanted"></strong><span>Trees Planted</span></div>
+          <div class="stat"><strong x-text="stats.plasticSaved"></strong><span>kg Plastic Saved</span></div>
+          <div class="stat"><strong x-text="stats.co2Offset"></strong><span>tonnes CO₂ Offset</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="categories">
+      <div class="section-header"><h2>Our <em>Sustainable</em> Categories</h2></div>
+      <div class="category-grid">
+        <template x-for="cat in categories" :key="cat.id">
+          <div class="amazon-card p-6 text-center"><div class="text-4xl mb-3" x-text="cat.icon"></div><h3 class="font-bold" x-text="cat.name"></h3><p class="text-sm text-gray-600" x-text="cat.description"></p></div>
+        </template>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+      <div class="section-header"><h2>Features That <em>Matter</em></h2></div>
+      <div class="category-grid">
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🌡️</div><h3 class="font-bold">Carbon Footprint Tracker</h3><p class="text-sm">Every product displays its exact carbon cost</p></div>
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🏅</div><h3 class="font-bold">Verified Sustainability Badges</h3><p class="text-sm">Third-party certifications you can trust</p></div>
+        <div class="amazon-card p-6"><div class="text-3xl mb-3">🤖</div><h3 class="font-bold">Eco-Impact Recommendations</h3><p class="text-sm">AI-powered suggestions to reduce your footprint</p></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-top"><div class="footer-brand"><span class="logo-text">EcoWise<em>Market</em></span><p>Turning shopping into a force for good</p></div></div>
+      <div class="footer-bottom"><span>© 2025 EcoWise Market. All rights reserved.</span><span>Built carbon-neutrally 🌍</span></div>
+    </footer>
   </div>
 
   <script>
@@ -307,6 +646,8 @@
         signupPassword: '',
         
         // Admin menu
+        currentView: 'frontend',
+        currentPage: 'dashboard',
         menuItems: [
           { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-line' },
           { id: 'productManagement', label: 'Product Management', icon: 'fas fa-box' },
@@ -323,6 +664,15 @@
         productForm: { id: null, sku: '', name: '', price: 0, stock: 0, active: 1, icon: '🌿' },
         editingProduct: null,
         reportData: 'Select a report type to view sales data...',
+          { id: 'systemConfig', label: 'Settings', icon: 'fas fa-cog' }
+        ],
+        products: [],
+        orders: [],
+        customers: [],
+        productForm: { id: null, sku: '', name: '', price: 0, active: 1 },
+        editingProduct: null,
+        sysConfig: { siteName: 'EcoWise Market', defaultCurrency: 'USD' },
+        categories: [],
         stats: { treesPlanted: 12480, plasticSaved: 4750, co2Offset: 320 },
         
         get totalRevenue() {
@@ -404,6 +754,32 @@
           this.isLoggedIn = false;
           this.currentUser = { name: '', email: '' };
           this.currentPage = 'home';
+          // Sample products
+          this.products = [
+            { id: 1, sku: 'BAM-001', name: 'Bamboo Utensil Set', price: 24.99, active: true },
+            { id: 2, sku: 'SOL-002', name: 'Solar Charger', price: 59.99, active: true },
+            { id: 3, sku: 'ORG-003', name: 'Organic Cotton Tote', price: 19.99, active: true }
+          ];
+          
+          this.orders = [
+            { id: 1001, customerName: 'Alice Johnson', total: 84.98, status: 'Paid', date: '2025-04-07' },
+            { id: 1002, customerName: 'Bob Smith', total: 59.99, status: 'Shipped', date: '2025-04-06' }
+          ];
+          
+          this.customers = [
+            { id: 1, name: 'Alice Johnson', email: 'alice@example.com', totalSpent: 250 },
+            { id: 2, name: 'Bob Smith', email: 'bob@example.com', totalSpent: 180 }
+          ];
+          
+          this.categories = [
+            { id: 1, name: 'Home Goods', icon: '🏠', description: 'Sustainable home essentials' },
+            { id: 2, name: 'Organic Food', icon: '🥬', description: 'Farm-to-table organic' },
+            { id: 3, name: 'Eco Fashion', icon: '👕', description: 'Ethical clothing' }
+          ];
+        },
+        
+        toggleView() {
+          this.currentView = this.currentView === 'admin' ? 'frontend' : 'admin';
         },
         
         openProductForm(prod) {
@@ -415,6 +791,9 @@
             this.productForm = { id: null, sku: '', name: '', price: 0, stock: 0, active: 1, icon: '🌿' };
           }
           this.currentAdminPage = 'addEditProduct';
+            this.productForm = { id: null, sku: '', name: '', price: 0, active: 1 };
+          }
+          this.currentPage = 'addEditProduct';
         },
         
         saveProduct() {
@@ -456,6 +835,31 @@
         }
       };
     }
+  </script>
+</body>
+</html>
+          this.currentPage = 'productManagement';
+        },
+        
+        deleteProduct(id) {
+          this.products = this.products.filter(p => p.id !== id);
+        },
+        
+        saveSysConfig() {
+          alert('Settings saved successfully!');
+        }
+      };
+    }
+    
+    // Custom cursor functionality
+    document.addEventListener('mousemove', function(e) {
+      const cursor = document.getElementById('cursor');
+      const cursorDot = document.getElementById('cursorDot');
+      if (cursor && cursorDot) {
+        cursor.style.transform = `translate(${e.clientX - 16}px, ${e.clientY - 16}px)`;
+        cursorDot.style.transform = `translate(${e.clientX - 3}px, ${e.clientY - 3}px)`;
+      }
+    });
   </script>
 </body>
 </html>
