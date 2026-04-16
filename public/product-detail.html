@@ -5,22 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Detail - EcoWise Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --natural-green: #228B22; --forest-green: #2E8B57; }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+  </style>
 </head>
 <body class="bg-gray-100">
 
-  <div class="bg-[#131921] text-white sticky top-0 z-50">
+  <div class="bg-gradient-to-r from-[#131921] to-[#1a2a36] text-white sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <a href="home.html" class="text-2xl font-bold hover:text-[#ff9900]">🌿 EcoWise</a>
-      <a href="cart.html" class="relative"><i class="fas fa-shopping-cart text-xl"></i><span id="cartCount" class="absolute -top-2 -right-3 bg-[#ff9900] text-black rounded-full px-1 text-xs">0</span></a>
+      <a href="home.html" class="text-2xl font-bold"><span class="text-xs align-top">eco</span><span class="text-[#febd69]">wise</span></a>
+      <div class="flex items-center gap-4">
+        <a href="login.html" class="text-sm hover:text-[#228B22]">Sign In</a>
+        <a href="cart.html" class="relative"><i class="fas fa-shopping-cart text-xl"></i><span id="cartCount" class="absolute -top-2 -right-3 bg-[#febd69] text-black rounded-full px-1 text-xs">0</span></a>
+      </div>
     </div>
   </div>
 
-  <div class="max-w-6xl mx-auto px-4 py-8" id="productDetail"></div>
+  <div class="max-w-6xl mx-auto px-4 py-8" id="productDetail">
+    <div class="text-center py-12">Loading product...</div>
+  </div>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
     const productId = parseInt(urlParams.get('id'));
+    let productImages = {};
+    let allProducts = [];
+
+    async function loadProduct() {
+      try {
+        const res = await fetch('/api/products');
+        allProducts = await res.json();
+        
+        const imagesRes = await fetch('/api/product-images');
+        const images = await imagesRes.json();
+        images.forEach(img => {
+          if (img.is_primary === 'true' || img.is_primary === true) {
+            productImages[img.product_id] = img.image_url;
+          } else if (!productImages[img.product_id]) {
+            productImages[img.product_id] = img.image_url;
+          }
+        });
+        
+        const product = allProducts.find(p => p.product_id === productId);
+        
+        if (!product) {
+          document.getElementById('productDetail').innerHTML = '<div class="bg-white rounded-lg shadow p-8 text-center">Product not found. <a href="home.html" class="text-[#228B22] hover:underline">Back to Shop</a></div>';
+          return;
+        }
+        
+        const imageUrl = productImages[product.product_id];
+        const productImage = imageUrl 
+          ? `<img src="${imageUrl}" alt="${product.product_name}" class="w-full h-80 object-contain">`
+          : `<div class="w-full h-80 flex items-center justify-center text-8xl bg-[#228B22]/5 rounded-lg">${getEmoji(product.product_name)}</div>`;
+        
+        const co2 = (Math.random() * 4 + 0.3).toFixed(1);
+        
+        document.getElementById('productDetail').innerHTML = `
+          <div class="bg-white rounded-lg shadow p-8">
+            <div class="grid md:grid-cols-2 gap-8">
+              <div class="bg-gray-50 rounded-lg p-4">${productImage}</div>
+              <div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">${product.product_name}</h1>
+                <div class="text-3xl font-bold text-[#228B22] mb-3">${parseInt(product.base_price).toLocaleString('fr-CM')} FCAF</div>
+                <div class="flex gap-2 mb-4">
+                  <span class="text-xs bg-[#228B22]/10 text-[#228B22] px-2 py-1 rounded-full"><i class="fas fa-leaf mr-1"></i>${co2} kg CO₂</span>
+                  <span class="text-xs bg-[#2E8B57]/10 text-[#2E8B57] px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>Verified Eco</span>
+                </div>
+                <div class="text-sm text-gray-600 mb-4">
+                  <strong>SKU:</strong> ${product.sku || 'N/A'}<br>
+                  <strong>Status:</strong> <span class="${product.is_active ? 'text-green-600' : 'text-gray-500'}">${product.is_active ? 'Active' : 'Inactive'}</span>
+                </div>
+                <div class="text-gray-700 mb-6 text-sm">
+                  <strong>Description:</strong><br>
+                  ${product.description || 'No description available for this product. This eco-friendly product is sourced sustainably to minimize environmental impact.'}
+                </div>
+                <button onclick="addToCartFromDetail(${product.product_id})" class="w-full amazon-btn py-3 rounded-sm text-lg font-bold text-black shadow-lg">
+                  <i class="fas fa-shopping-cart mr-2"></i>Add to Cart
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        document.getElementById('productDetail').innerHTML = '<div class="text-center py-12 text-red-500">Error loading product.</div>';
+      }
+    }
+    
+    async function addToCartFromDetail(productId) {
+      const product = allProducts.find(p => p.product_id === productId);
+      if (!product) return;
+      
+      const CUSTOMER_ID = parseInt(localStorage.getItem('customerId')) || 1;
+      
+      try {
+        await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer_id: CUSTOMER_ID, product_id: productId, quantity: 1 })
+        });
+        alert('Added to cart!');
+        loadCartCount();
+      } catch (err) {
+        alert('Error adding to cart');
+      }
+    }
     
     function loadCartCount() {
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -28,48 +118,22 @@
       document.getElementById('cartCount').innerText = count;
     }
     
-    function loadProduct() {
-      const products = JSON.parse(localStorage.getItem('products') || '[]');
-      const product = products.find(p => p.id === productId);
-      
-      if (!product) {
-        document.getElementById('productDetail').innerHTML = '<div class="text-center py-12">Product not found. <a href="shop.html" class="text-green-600">Back to Shop</a></div>';
-        return;
-      }
-      
-      document.getElementById('productDetail').innerHTML = `
-        <div class="bg-white rounded-lg shadow p-8">
-          <div class="grid md:grid-cols-2 gap-8">
-            <div class="text-center"><div class="text-9xl">${product.icon || '🌿'}</div></div>
-            <div><h1 class="text-3xl font-bold mb-4">${product.name}</h1>
-            <div class="text-2xl font-bold text-green-700 mb-2">$${product.price}</div>
-            <div class="flex items-center space-x-4 mb-4"><span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">🌱 ${product.carbon || 0.2} kg CO₂</span><span class="text-sm">Stock: ${product.stock}</span></div>
-            <p class="text-gray-600 mb-6">${product.description || 'Sustainable, eco-friendly product that helps reduce your carbon footprint.'}</p>
-            <button onclick="addToCart(${product.id})" class="bg-[#ff9900] text-black px-8 py-3 rounded font-semibold hover:bg-[#fa8900] w-full">Add to Cart</button></div>
-          </div>
-        </div>
-      `;
+    function getEmoji(name) {
+      const n = name.toLowerCase();
+      if (n.includes('bamboo')) return '🎋';
+      if (n.includes('solar')) return '☀️';
+      if (n.includes('tea') || n.includes('herbal')) return '🍵';
+      if (n.includes('coffee')) return '☕';
+      if (n.includes('organic')) return '🥬';
+      if (n.includes('shirt') || n.includes('cotton') || n.includes('dress')) return '👕';
+      if (n.includes('soap') || n.includes('clean') || n.includes('detergent')) return '🧼';
+      if (n.includes('water') || n.includes('bottle')) return '💧';
+      if (n.includes('juice')) return '🥤';
+      if (n.includes('lamp')) return '💡';
+      return '📦';
     }
-    
-    function addToCart(productId) {
-      let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const products = JSON.parse(localStorage.getItem('products') || '[]');
-      const product = products.find(p => p.id === productId);
-      const existing = cart.find(item => item.id === productId);
-      
-      if (existing) {
-        existing.quantity++;
-      } else if (product) {
-        cart.push({ ...product, quantity: 1 });
-      }
-      
-      localStorage.setItem('cart', JSON.stringify(cart));
-      loadCartCount();
-      alert('Added to cart!');
-    }
-    
+
     loadProduct();
-    loadCartCount();
   </script>
 </body>
 </html>

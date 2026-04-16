@@ -3,279 +3,443 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EcoWise Market - Sustainable Shopping</title>
+  <title>EcoWise Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .animate-marquee { animation: marquee 30s linear infinite; }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+    .amazon-btn:hover { background: linear-gradient(to bottom,#f7ca8f,#e2a32e); }
+    .search-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+    .search-btn:hover { background: linear-gradient(to bottom,#f0a30a,#febd69); }
+    .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .glow-orange:hover { box-shadow: 0 0 15px rgba(254,189,105,0.5); }
+    :root {
+      --natural-green: #228B22;
+      --forest-green: #2E8B57;
+      --sage-green: #9CAF88;
+      --olive-green: #6B8E23;
+      --moss-green: #4A5D23;
+    }
   </style>
 </head>
 <body class="bg-gray-100">
 
-  <!-- ═══ NAVBAR ═══ -->
-  <div class="bg-[#131921] text-white sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center space-x-6">
-        <a href="/" class="text-2xl font-bold hover:text-[#ff9900] transition">
-          <span class="text-[#ff9900]">🌿</span> Eco<span class="text-[#ff9900]">Wise</span>
+  <!-- NAVBAR - Amazon Style with Eco Theme -->
+  <header class="bg-gradient-to-r from-[#131921] to-[#1a2a36] text-white">
+    <div class="max-w-7xl mx-auto px-4 py-2">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <!-- Logo -->
+        <a href="/" class="flex items-center mt-2 group">
+          <div class="text-2xl font-bold border-2 border-white px-2 py-1 rounded group-hover:border-[#228B22] transition-colors">
+            <span class="text-xs align-top">eco</span><span class="text-[#febd69]">wise</span>
+          </div>
         </a>
-        <div class="hidden md:flex items-center bg-white rounded-md">
-          <input type="text" placeholder="Search eco-friendly products..." id="searchInput"
-            class="w-96 px-4 py-2 rounded-l-md text-black outline-none">
-          <button onclick="handleSearch()" class="bg-[#ff9900] px-4 py-2 rounded-r-md text-black hover:bg-[#fa8900]">
-            <i class="fas fa-search"></i>
-          </button>
+        
+        <!-- Location -->
+        <div class="hidden md:flex flex-col text-xs hover:border-white px-2 py-2 cursor-pointer border border-transparent hover:rounded">
+          <span class="text-gray-300"><i class="fas fa-map-marker-alt mr-1 text-[#228B22]"></i> Deliver to</span>
+          <span class="font-bold text-sm">United States</span>
         </div>
-      </div>
-      <div class="flex items-center space-x-5 text-sm">
-        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
-          <span class="text-gray-300">Hello, Guest</span>
-          <span class="font-bold">Account &amp; Lists</span>
+        
+        <!-- Search -->
+        <div class="flex flex-1 max-w-2xl mx-4 my-2">
+          <div class="flex w-full rounded-md overflow-hidden shadow-lg">
+            <div class="relative group">
+              <button class="h-full px-3 bg-gray-100 border-r border-gray-300 text-sm text-gray-600 flex items-center hover:bg-gray-200">
+                All <i class="fas fa-caret-down ml-1 text-xs"></i>
+              </button>
+            </div>
+            <input type="text" id="searchInput" placeholder="Search EcoWise products"
+              class="flex-1 px-4 py-2.5 text-gray-900 outline-none">
+            <button onclick="handleSearch()" class="search-btn px-6">
+              <i class="fas fa-search text-gray-900 text-xl"></i>
+            </button>
+          </div>
         </div>
-        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
-          <span class="text-gray-300">Returns</span>
-          <span class="font-bold">&amp; Orders</span>
-        </div>
-        <div class="relative flex items-center space-x-1 hover:text-[#ff9900] cursor-pointer" onclick="toggleCart()">
-          <i class="fas fa-shopping-cart text-2xl"></i>
-          <span id="cartCount" class="absolute -top-2 left-3 bg-[#ff9900] text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">0</span>
-          <span class="font-bold ml-4">Cart</span>
+        
+        <!-- Right side -->
+        <div class="flex items-center gap-4 text-sm">
+          <!-- Not logged in - show sign in -->
+          <div id="navSignIn" class="flex flex-col cursor-pointer hover:border-white px-2 py-2 border border-transparent hover:rounded">
+            <span class="text-xs text-gray-300">Hello, sign in</span>
+            <span class="font-bold text-sm">Account & Lists <i class="fas fa-caret-down ml-1 text-xs"></i></span>
+          </div>
+          
+          <!-- Logged in - show user name -->
+          <div id="navUser" class="hidden flex flex-col cursor-pointer hover:border-white px-2 py-2 border border-transparent hover:rounded">
+            <span class="text-xs text-gray-300">Hello, <span id="userNameDisplay">User</span></span>
+            <span class="font-bold text-sm">Account & Lists <i class="fas fa-caret-down ml-1 text-xs"></i></span>
+          </div>
+          
+          <div class="flex flex-col cursor-pointer hover:border-white px-2 py-2 border border-transparent hover:rounded hidden sm:flex">
+            <span class="text-xs text-gray-300">Returns</span>
+            <span class="font-bold text-sm">& Orders</span>
+          </div>
+          <div class="flex items-center cursor-pointer hover:border-white px-2 py-2 border border-transparent hover:rounded" onclick="toggleCart()">
+            <div class="relative">
+              <i class="fas fa-shopping-cart text-2xl"></i>
+              <span id="cartCount" class="absolute -top-1 left-4 text-xs font-bold text-[#febd69]">0</span>
+            </div>
+            <span class="font-bold text-sm mt-2">Cart</span>
+          </div>
         </div>
       </div>
     </div>
+    
     <!-- Category strip -->
-    <div class="bg-[#232f3e] px-4 py-2">
-      <div class="max-w-7xl mx-auto flex items-center space-x-6 text-sm overflow-x-auto">
-        <a href="#featured"    class="hover:text-[#ff9900] whitespace-nowrap"><i class="fas fa-bars mr-1"></i> All Products</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🌱 Eco Home</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🥬 Organic Food</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">👕 Fashion</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">♻️ Zero Waste</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🔋 Green Tech</a>
-        <a href="#impact"      class="hover:text-[#ff9900] whitespace-nowrap">🌍 Our Impact</a>
+    <div class="bg-gradient-to-r from-[#131921] to-[#1e2d3d] border-t border-gray-700">
+      <div class="max-w-7xl mx-auto px-4 py-1.5 flex items-center gap-5 text-sm overflow-x-auto">
+        <a href="#featured" class="flex items-center hover:border-white border border-transparent px-2 py-1 text-[#228B22] hover:text-[#9CAF88]">
+          <i class="fas fa-bars mr-2"></i> All
+        </a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Eco Home</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Organic Food</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Fashion</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Zero Waste</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Green Tech</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Beauty</a>
+        <a href="#categories" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Kitchen</a>
+        <a href="#impact" class="whitespace-nowrap hover:border-white border border-transparent px-2 py-1 hover:text-[#228B22]">Our Impact</a>
+        <a href="/account.html" class="whitespace-nowrap text-gray-300 hover:text-[#228B22] font-medium"><i class="fas fa-user mr-1"></i>Account</a>
+        <span id="adminLink" class="whitespace-nowrap text-[#228B22] font-bold hover:text-[#9CAF88] cursor-pointer"><i class="fas fa-cog mr-1"></i>Admin</span>
+        <a href="#" class="whitespace-nowrap text-[#febd69] text-xs font-bold hover:underline">Help</a>
       </div>
     </div>
-  </div>
+  </header>
 
-  <!-- ═══ HERO ═══ -->
-  <div class="relative bg-gradient-to-r from-green-900 to-green-600 text-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 py-20 relative z-10">
-      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1 text-sm mb-6">
-        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-        🌍 Carbon-Neutral Shipping Available
-      </div>
-      <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-        Shop with the<br><span class="text-[#ff9900]">Planet</span> in Mind 🌍
-      </h1>
-      <p class="text-xl mb-8 max-w-2xl text-green-100">
-        Every product verified for ethical sourcing, fair trade &amp; environmental responsibility.
+  <!-- HERO BANNER -->
+  <div class="bg-gradient-to-r from-[#1a3a1a] via-[#2d5a2d] to-[#1a3a1a] text-white py-10 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-20">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-[#228B22] rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 w-72 h-72 bg-[#2E8B57] rounded-full blur-3xl"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 pb-24 relative z-10">
+      <p class="text-sm text-[#9CAF88] mb-2 font-medium"><i class="fas fa-leaf mr-1"></i> Welcome to EcoWise Market</p>
+      <h1 class="text-3xl md:text-5xl font-bold mb-4">Shop with the Planet in Mind</h1>
+      <p class="text-sm text-[#9CAF88] max-w-2xl mb-6 text-lg">
+        Every product verified for ethical sourcing, fair trade & environmental responsibility. 
+        Carbon-neutral shipping available on all orders.
       </p>
-      <div class="flex flex-wrap gap-4">
-        <a href="#featured" class="bg-[#ff9900] text-black px-8 py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">Shop Today's Deals →</a>
-        <a href="#categories" class="border border-white text-white px-8 py-3 rounded-md font-semibold hover:bg-white hover:text-green-900 transition">Browse Categories</a>
-      </div>
-      <div class="flex flex-wrap gap-8 mt-10">
-        <div><strong id="countTrees" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">Trees Planted</p></div>
-        <div class="w-px bg-white/20"></div>
-        <div><strong id="countPlastic" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">kg Plastic Saved</p></div>
-        <div class="w-px bg-white/20"></div>
-        <div><strong id="countCO2" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">tonnes CO₂ Offset</p></div>
-      </div>
-    </div>
-    <div class="absolute right-10 top-10 text-[12rem] opacity-5 select-none pointer-events-none">🌿</div>
-  </div>
-
-  <!-- ═══ MARQUEE ═══ -->
-  <div class="bg-[#232f3e] text-green-300 overflow-hidden py-3 text-sm">
-    <div class="flex gap-12 animate-marquee whitespace-nowrap">
-      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
-      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
-      <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
-      <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
-      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
-      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
-    </div>
-  </div>
-
-  <!-- ═══ FEATURED PRODUCTS ═══ -->
-  <div class="max-w-7xl mx-auto px-4 py-12" id="featured">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Today's Eco Deals</span>
-        <h2 class="text-2xl font-bold mt-2">Featured <span class="text-green-700">Products</span></h2>
-      </div>
-      <a href="#featured" class="text-[#ff9900] font-semibold hover:underline text-sm">See all →</a>
-    </div>
-    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-    </div>
-  </div>
-
-  <!-- ═══ CATEGORIES ═══ -->
-  <div class="bg-white py-12" id="categories">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Browse</span>
-        <h2 class="text-2xl font-bold mt-2">Our <span class="text-green-700">Sustainable</span> Categories</h2>
-      </div>
-      <div id="categoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+      <div class="flex flex-wrap gap-3">
+        <a href="#featured" class="amazon-btn text-black px-6 py-2.5 rounded-sm text-sm font-bold hover:shadow-lg glow-orange transition-all">Shop Today's Deals</a>
+        <a href="#categories" class="border-2 border-[#228B22] text-[#9CAF88] px-6 py-2.5 rounded-sm text-sm font-semibold hover:bg-[#228B22] hover:text-white transition-all">Browse Categories</a>
       </div>
     </div>
   </div>
 
-  <!-- ═══ IMPACT ═══ -->
-  <div class="bg-[#232f3e] text-white py-14" id="impact">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-      <div><i class="fas fa-tree text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">12,480</div><div class="text-green-300 mt-1">Trees Planted</div></div>
-      <div><i class="fas fa-recycle text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">4,750 kg</div><div class="text-green-300 mt-1">Plastic Saved</div></div>
-      <div><i class="fas fa-cloud-sun text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">320 t</div><div class="text-green-300 mt-1">CO₂ Offset</div></div>
+  <!-- MARQUEE -->
+  <div class="bg-gradient-to-r from-[#228B22] via-[#2E8B57] to-[#228B22] text-white overflow-hidden py-3 shadow-md">
+    <div class="flex gap-16 animate-marquee whitespace-nowrap text-xs font-semibold">
+      <span><i class="fas fa-certificate mr-2"></i> FAIR TRADE CERTIFIED</span>
+      <span><i class="fas fa-recycle mr-2"></i> ZERO-WASTE PACKAGING</span>
+      <span><i class="fas fa-award mr-2"></i> B CORP PRODUCTS</span>
+      <span><i class="fas fa-globe mr-2"></i> CARBON OFFSET SHIPPING</span>
+      <span><i class="fas fa-leaf mr-2"></i> USDA ORGANIC</span>
+      <span><i class="fas fa-sun mr-2"></i> RENEWABLE ENERGY</span>
+      <span><i class="fas fa-handshake mr-2"></i> ETHICAL SOURCING</span>
+      <span><i class="fas fa-certificate mr-2"></i> FAIR TRADE CERTIFIED</span>
+      <span><i class="fas fa-recycle mr-2"></i> ZERO-WASTE PACKAGING</span>
     </div>
   </div>
 
-  <!-- ═══ FEATURES ═══ -->
-  <div class="bg-green-900 text-white py-14">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-300 bg-green-800 px-3 py-1 rounded-full">What Makes Us Different</span>
-        <h2 class="text-2xl font-bold mt-2">Features That <span class="text-[#ff9900]">Matter</span></h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🌡️</span><h3 class="font-bold text-lg mt-3 mb-2">Carbon Footprint Tracker</h3>
-          <p class="text-green-300 text-sm">Every product shows its exact carbon cost from farm to your front door.</p>
+  <!-- MAIN CONTENT -->
+  <div class="max-w-7xl mx-auto px-4 -mt-16 relative z-10">
+    
+    <!-- CATEGORY GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div class="bg-white p-4 rounded-lg shadow-lg border-t-4 border-[#228B22] card-hover transition-all">
+        <h3 class="font-bold text-lg mb-3 text-gray-800">Shop by Category</h3>
+        <div class="grid grid-cols-2 gap-3" id="categoryGrid">
+          <div class="bg-gray-100 h-24 animate-pulse rounded-lg"></div>
+          <div class="bg-gray-100 h-24 animate-pulse rounded-lg"></div>
+          <div class="bg-gray-100 h-24 animate-pulse rounded-lg"></div>
+          <div class="bg-gray-100 h-24 animate-pulse rounded-lg"></div>
         </div>
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🏅</span><h3 class="font-bold text-lg mt-3 mb-2">Verified Sustainability Badges</h3>
-          <p class="text-green-300 text-sm">Third-party certifications — Fair Trade, B Corp, USDA Organic.</p>
-        </div>
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🏭</span><h3 class="font-bold text-lg mt-3 mb-2">Local Warehouse Routing</h3>
-          <p class="text-green-300 text-sm">Ships from the nearest warehouse to minimise delivery emissions.</p>
+      </div>
+      
+      <!-- SIGN IN CARD -->
+      <div class="bg-white p-4 rounded-lg shadow-lg border-t-4 border-[#2E8B57] col-span-1 sm:col-span-2 card-hover transition-all">
+        <h3 class="font-bold text-lg mb-2 text-gray-800">New to EcoWise?</h3>
+        <p class="text-sm text-gray-600 mb-3">Sign in for personalized recommendations and faster checkout.</p>
+        <button class="amazon-btn w-full py-2 rounded-sm text-sm font-bold text-center text-black shadow-md">Sign in securely</button>
+        <p class="text-xs mt-2 text-gray-500">New customer? <a href="#" class="text-[#228B22] font-medium hover:underline">Start here</a></p>
+      </div>
+      
+      <!-- IMPACT STATS -->
+      <div class="bg-white p-4 rounded-lg shadow-lg border-t-4 border-[#6B8E23] col-span-1 sm:col-span-2 lg:col-span-2 card-hover transition-all">
+        <h3 class="font-bold text-lg mb-3 text-gray-800">Our Environmental Impact</h3>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-[#228B22]/10 rounded-lg p-2"><div class="text-2xl font-bold text-[#228B22]" id="countTrees">—</div><div class="text-xs text-gray-600">Trees Planted</div></div>
+          <div class="bg-[#2E8B57]/10 rounded-lg p-2"><div class="text-2xl font-bold text-[#2E8B57]" id="countPlastic">—</div><div class="text-xs text-gray-600">kg Plastic Saved</div></div>
+          <div class="bg-[#6B8E23]/10 rounded-lg p-2"><div class="text-2xl font-bold text-[#6B8E23]" id="countCO2">—</div><div class="text-xs text-gray-600">tonnes CO₂</div></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ═══ REVIEWS ═══ -->
-  <div class="bg-gray-50 py-14">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Community</span>
-        <h2 class="text-2xl font-bold mt-2">What Our <span class="text-green-700">Shoppers</span> Say</h2>
+    <!-- FEATURED PRODUCTS -->
+    <div class="bg-white p-5 rounded-lg shadow-lg mb-6" id="featured">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-bold text-gray-800">Featured Products <span class="text-[#228B22] text-sm font-normal ml-2"><i class="fas fa-fire"></i> Hot Deals</span></h3>
+        <a href="#" class="text-sm text-[#228B22] font-medium hover:underline">See more <i class="fas fa-arrow-right"></i></a>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center font-bold text-green-800">A</div>
-            <div><p class="font-semibold">Amara K.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 94</span>
+      <div id="productsGrid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+        <div class="bg-gray-100 h-52 animate-pulse rounded-lg"></div>
+      </div>
+    </div>
+
+    <!-- PRODUCT ROWS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6" id="categories">
+      <div class="bg-white p-5 rounded-lg shadow-lg border-t-4 border-[#228B22] card-hover transition-all">
+        <h3 class="font-bold text-lg mb-4 text-gray-800">Eco Home Essentials</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-[#228B22]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🎋</div>
+          <div class="bg-[#6B8E23]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🕯️</div>
+          <div class="bg-[#2E8B57]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🪴</div>
+          <div class="bg-[#9CAF88]/20 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">💡</div>
+        </div>
+        <a href="#" class="text-sm text-[#228B22] font-medium hover:underline mt-3 block">See more in Eco Home</a>
+      </div>
+      
+      <div class="bg-white p-5 rounded-lg shadow-lg border-t-4 border-[#2E8B57] card-hover transition-all">
+        <h3 class="font-bold text-lg mb-4 text-gray-800">Organic Food & Beverages</h3>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="bg-[#6B8E23]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">☕</div>
+          <div class="bg-[#228B22]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🍵</div>
+          <div class="bg-[#2E8B57]/10 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🥬</div>
+          <div class="bg-[#9CAF88]/20 h-32 rounded-lg flex items-center justify-center text-5xl hover:scale-105 transition-transform cursor-pointer">🌾</div>
+        </div>
+        <a href="#" class="text-sm text-[#2E8B57] font-medium hover:underline mt-3 block">See more in Organic Food</a>
+      </div>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <div class="bg-white p-5 rounded-lg shadow-lg mb-6">
+      <h3 class="font-bold text-lg mb-5 text-gray-800 text-center">Why Shop EcoWise?</h3>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
+        <div onclick="showFeatureInfo('carbon')" class="text-center p-4 rounded-lg hover:bg-[#228B22]/5 transition-all card-hover cursor-pointer">
+          <div class="w-14 h-14 bg-[#228B22] rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <i class="fas fa-leaf text-white text-xl"></i>
           </div>
-          <p class="text-gray-600 text-sm">"The Carbon Tracker blew my mind. I can literally see my impact before checking out."</p>
+          <h4 class="font-bold text-sm text-gray-800">Carbon Footprint Tracker</h4>
+          <p class="text-xs text-gray-600 mt-1">See your impact before checkout</p>
         </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center font-bold text-amber-800">J</div>
-            <div><p class="font-semibold">James T.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 88</span>
+        <div onclick="showFeatureInfo('badges')" class="text-center p-4 rounded-lg hover:bg-[#2E8B57]/5 transition-all card-hover cursor-pointer">
+          <div class="w-14 h-14 bg-[#2E8B57] rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <i class="fas fa-certificate text-white text-xl"></i>
           </div>
-          <p class="text-gray-600 text-sm">"Switched from bottled supplements to refillable. Saved money AND the planet!"</p>
+          <h4 class="font-bold text-sm text-gray-800">Verified Badges</h4>
+          <p class="text-xs text-gray-600 mt-1">Fair Trade, B Corp, USDA</p>
         </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-800">S</div>
-            <div><p class="font-semibold">Sofia R.</p><p class="text-[#ff9900] text-sm">★★★★☆</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 79</span>
+        <div onclick="showFeatureInfo('shipping')" class="text-center p-4 rounded-lg hover:bg-[#6B8E23]/5 transition-all card-hover cursor-pointer">
+          <div class="w-14 h-14 bg-[#6B8E23] rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <i class="fas fa-shipping-fast text-white text-xl"></i>
           </div>
-          <p class="text-gray-600 text-sm">"Ships from a warehouse 8 miles away — the lowest delivery footprint I've ever seen."</p>
+          <h4 class="font-bold text-sm text-gray-800">Eco Shipping</h4>
+          <p class="text-xs text-gray-600 mt-1">Carbon-neutral delivery</p>
         </div>
+        <div onclick="showFeatureInfo('returns')" class="text-center p-4 rounded-lg hover:bg-[#9CAF88]/20 transition-all card-hover cursor-pointer">
+          <div class="w-14 h-14 bg-[#9CAF88] rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+            <i class="fas fa-undo text-white text-xl"></i>
+          </div>
+          <h4 class="font-bold text-sm text-gray-800">Easy Returns</h4>
+          <p class="text-xs text-gray-600 mt-1">30-day return policy</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="bg-white p-5 rounded-lg shadow-lg mb-6">
+      <h3 class="font-bold text-lg mb-5 text-gray-800 text-center">What Our Customers Say</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-[#228B22]/5 border border-[#228B22]/20 p-4 rounded-xl card-hover transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-[#228B22] rounded-full flex items-center justify-center text-white font-bold">A</div>
+            <div>
+              <span class="font-bold text-sm text-gray-800">Amara K.</span>
+              <div class="flex text-amber-400 text-xs"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            </div>
+            <span class="ml-auto text-xs bg-[#228B22]/10 text-[#228B22] px-2 py-1 rounded-full font-medium">Verified</span>
+          </div>
+          <p class="text-sm text-gray-600">"The Carbon Tracker is amazing. I can see my impact before checking out!"</p>
+        </div>
+        <div class="bg-[#2E8B57]/5 border border-[#2E8B57]/20 p-4 rounded-xl card-hover transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-[#2E8B57] rounded-full flex items-center justify-center text-white font-bold">J</div>
+            <div>
+              <span class="font-bold text-sm text-gray-800">James T.</span>
+              <div class="flex text-amber-400 text-xs"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div>
+            </div>
+            <span class="ml-auto text-xs bg-[#2E8B57]/10 text-[#2E8B57] px-2 py-1 rounded-full font-medium">Verified</span>
+          </div>
+          <p class="text-sm text-gray-600">"Saved money AND the planet by switching to refillable products!"</p>
+        </div>
+        <div class="bg-[#6B8E23]/5 border border-[#6B8E23]/20 p-4 rounded-xl card-hover transition-all">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 bg-[#6B8E23] rounded-full flex items-center justify-center text-white font-bold">S</div>
+            <div>
+              <span class="font-bold text-sm text-gray-800">Sofia R.</span>
+              <div class="flex text-amber-400 text-xs"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i></div>
+            </div>
+            <span class="ml-auto text-xs bg-[#6B8E23]/10 text-[#6B8E23] px-2 py-1 rounded-full font-medium">Verified</span>
+          </div>
+          <p class="text-sm text-gray-600">"Lowest delivery footprint I've ever seen. Ships from 8 miles away!"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="bg-gradient-to-r from-[#228B22] via-[#2E8B57] to-[#228B22] text-white p-8 rounded-lg shadow-lg mb-6 text-center relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-0 right-10 w-40 h-40 bg-white rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
+      </div>
+      <div class="relative z-10">
+        <h3 class="text-2xl font-bold mb-2">Ready to Shop Sustainably?</h3>
+        <p class="text-[#9CAF88] mb-5 text-lg">Join 200,000+ conscious shoppers making a difference.</p>
+        <div class="max-w-md mx-auto flex gap-2">
+          <input id="ctaEmail" type="email" placeholder="Enter your email"
+            class="flex-1 px-4 py-2.5 border-2 border-white/30 bg-white/10 rounded-sm text-white placeholder-[#9CAF88] outline-none focus:border-white">
+          <button id="ctaBtn" onclick="handleNewsletter()" class="amazon-btn px-6 py-2.5 rounded-sm text-sm font-bold text-black shadow-lg">Subscribe</button>
+        </div>
+        <p id="ctaNote" class="text-[#9CAF88] text-xs mt-3">No spam. Unsubscribe anytime.</p>
       </div>
     </div>
   </div>
 
-  <!-- ═══ CTA ═══ -->
-  <div class="bg-green-800 text-white py-14 text-center relative overflow-hidden">
-    <div class="absolute right-8 top-4 text-[10rem] opacity-5 pointer-events-none select-none">🍃</div>
-    <div class="relative z-10 max-w-lg mx-auto px-4">
-      <h2 class="text-3xl font-bold mb-2">Ready to Shop <span class="text-[#ff9900]">Sustainably?</span></h2>
-      <p class="text-green-200 mb-6">Join 200,000+ conscious shoppers making a difference.</p>
-      <div class="flex gap-2">
-        <input id="ctaEmail" type="email" placeholder="Enter your email…"
-          class="flex-1 px-4 py-3 rounded-l-md text-black outline-none">
-        <button id="ctaBtn" onclick="handleNewsletter()"
-          class="bg-[#ff9900] text-black px-6 py-3 rounded-r-md font-semibold hover:bg-[#fa8900] transition">
-          Join EcoWise
-        </button>
+  <!-- FOOTER -->
+  <footer class="bg-gradient-to-b from-[#131921] to-[#1a232c] text-gray-400 mt-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-10">
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Know Your Impact</h4>
+          <ul class="text-xs space-y-2">
+            <li><a href="#" class="hover:text-[#228B22] transition">Carbon Tracker</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Impact Dashboard</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Sustainability Reports</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Shop</h4>
+          <ul class="text-xs space-y-2">
+            <li><a href="#featured" class="hover:text-[#228B22] transition">All Products</a></li>
+            <li><a href="#categories" class="hover:text-[#228B22] transition">Categories</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Today's Deals</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Company</h4>
+          <ul class="text-xs space-y-2">
+            <li><a href="#" class="hover:text-[#228B22] transition">About Us</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Our Mission</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Careers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold text-sm mb-4">Help</h4>
+          <ul class="text-xs space-y-2">
+            <li><a href="#" class="hover:text-[#228B22] transition">Customer Service</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Shipping Info</a></li>
+            <li><a href="#" class="hover:text-[#228B22] transition">Returns</a></li>
+          </ul>
+        </div>
       </div>
-      <p id="ctaNote" class="text-green-300 text-sm mt-3">No spam. Unsubscribe anytime. 🌿</p>
+      <div class="border-t border-gray-700 py-5 text-center text-xs">
+        <span class="text-[#228B22] mr-2"><i class="fas fa-leaf"></i></span>
+        © 2025 EcoWise Market, Inc. | Carbon Neutral Since 2024
+      </div>
     </div>
-  </div>
-
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="bg-[#131921] text-gray-400 py-10">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="text-white text-xl font-bold mb-2">🌿 EcoWise<span class="text-[#ff9900]">Market</span></div>
-        <p class="text-sm">Turning shopping into a force for good.</p>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Shop</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#featured" class="hover:text-[#ff9900]">All Products</a></li><li><a href="#categories" class="hover:text-[#ff9900]">Categories</a></li></ul>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Features</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">Carbon Tracker</a></li><li><a href="#" class="hover:text-[#ff9900]">Impact Dashboard</a></li></ul>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Company</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">About Us</a></li><li><a href="#" class="hover:text-[#ff9900]">Our Mission</a></li></ul>
-      </div>
+    
+    <!-- Back to top -->
+    <div class="bg-gradient-to-r from-[#228B22] to-[#2E8B57] text-white text-center py-3 text-sm hover:from-[#1e7a1e] hover:to-[#267a4a] cursor-pointer transition-all">
+      Back to top
     </div>
-    <div class="border-t border-gray-800 pt-6 text-center text-sm">© 2025 EcoWise Market. Built carbon-neutrally 🌍</div>
   </footer>
 
-  <!-- ═══ CART SIDEBAR ═══ -->
-  <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleCart()"></div>
+  <!-- CART SIDEBAR -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/60 z-40 hidden" onclick="toggleCart()"></div>
   <div id="cartSidebar" class="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
-    <div class="flex items-center justify-between px-4 py-4 bg-[#131921] text-white">
-      <h3 class="font-bold text-lg">🛒 Your Cart</h3>
-      <button onclick="toggleCart()" class="text-gray-300 hover:text-white text-xl">✕</button>
+    <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#228B22] to-[#2E8B57] text-white">
+      <h3 class="font-bold"><i class="fas fa-shopping-cart mr-2"></i>Shopping Cart</h3>
+      <button onclick="toggleCart()" class="text-white hover:text-[#9CAF88]">&times;</button>
     </div>
-    <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3">
-      <p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-3 space-y-2">
+      <p class="text-gray-400 text-center mt-8">Your cart is empty</p>
     </div>
-    <div class="p-4 border-t">
+    <div class="p-4 border-t bg-gray-50">
       <div class="flex justify-between font-bold text-lg mb-3">
-        <span>Total:</span><span id="cartTotal">$0.00</span>
+        <span class="text-gray-700">Total:</span>
+        <span id="cartTotal" class="text-gray-900">0 FCAF</span>
       </div>
-      <button class="w-full bg-[#ff9900] text-black py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">
-        Proceed to Checkout
-      </button>
+      <div class="flex gap-2">
+        <button onclick="goToCheckout()" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+          Proceed to Checkout
+        </button>
+        <button onclick="toggleCart()" class="px-3 py-3 border border-gray-300 rounded-lg hover:bg-gray-100">
+          Close
+        </button>
+      </div>
     </div>
   </div>
 
-  <!-- ═══ NOTIFICATION ═══ -->
-  <div id="notification" class="fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 hidden">
+  <!-- NOTIFICATION -->
+  <div id="notification" class="fixed bottom-6 right-6 text-white px-4 py-2.5 rounded-sm shadow-lg z-50 hidden">
     <span id="notifMsg"></span>
   </div>
 
-  <!-- ═══ JAVASCRIPT — all connected to Neon database ═══ -->
+  <!-- PRODUCT DETAIL MODAL -->
+  <div id="productDetailModal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center">
+    <div class="relative p-6">
+      <button onclick="closeProductDetail()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl z-10">&times;</button>
+      <div id="productDetailContent" class="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
   <script>
     let allProducts = [];
-    let cartItems   = [];
-    const CUSTOMER_ID = 1;
+    let productImages = {}; // Map product_id -> image_url
+    let cartItems = [];
+    // Use customer ID from localStorage if logged in, otherwise default to 1 for guest
+    let CUSTOMER_ID = parseInt(localStorage.getItem('customerId')) || 1;
 
     window.addEventListener('load', async () => {
+      // Update customer ID from localStorage
+      CUSTOMER_ID = parseInt(localStorage.getItem('customerId')) || 1;
+      
+      await loadProductImages(); // Load images first
       await loadProducts();
       await loadCategories();
       await loadCart();
       loadImpactStats();
+      updateAuthUI(); // Update login state UI
     });
+
+    // Load product images for display
+    async function loadProductImages() {
+      try {
+        const res = await fetch('/api/product-images');
+        const images = await res.json();
+        
+        // Store images in a map, prefer primary images
+        images.forEach(img => {
+          if (img.is_primary === 'true' || img.is_primary === true) {
+            productImages[img.product_id] = img.image_url;
+          } else if (!productImages[img.product_id]) {
+            productImages[img.product_id] = img.image_url;
+          }
+        });
+      } catch (err) {
+        console.error('Error loading product images:', err);
+      }
+    }
 
     async function loadProducts() {
       try {
@@ -283,19 +447,17 @@
         allProducts = await res.json();
         renderProducts(allProducts);
       } catch {
-        document.getElementById('productsGrid').innerHTML =
-          '<p class="col-span-4 text-center text-gray-500 py-8">Could not load products.</p>';
+        document.getElementById('productsGrid').innerHTML = '<p class="col-span-6 text-center text-gray-500 py-8">Could not load products.</p>';
       }
     }
 
     async function loadCategories() {
       try {
-        const res  = await fetch('/api/categories');
+        const res = await fetch('/api/categories');
         const cats = await res.json();
         renderCategories(cats);
       } catch {
-        document.getElementById('categoryGrid').innerHTML =
-          '<p class="col-span-5 text-center text-gray-500">Could not load categories.</p>';
+        document.getElementById('categoryGrid').innerHTML = '<p class="col-span-4 text-center text-gray-500">Could not load categories.</p>';
       }
     }
 
@@ -310,45 +472,58 @@
     function renderProducts(products) {
       const grid = document.getElementById('productsGrid');
       if (!products.length) {
-        grid.innerHTML = '<p class="col-span-4 text-center text-gray-500 py-8">No products found. 🌿</p>';
+        grid.innerHTML = '<p class="col-span-6 text-center text-gray-500 py-8">No products found.</p>';
         return;
       }
-      grid.innerHTML = products.map(p => `
-        <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-shadow flex flex-col">
-          <div class="text-6xl text-center py-4 bg-green-50 rounded-lg mb-3">${getEmoji(p.product_name)}</div>
-          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full w-fit mb-2">🌱 Eco-Friendly</span>
-          <h3 class="font-semibold text-gray-800 flex-1 text-sm">${escHtml(p.product_name)}</h3>
-          <div class="flex items-center justify-between mt-2">
-            <span class="text-xl font-bold text-green-700">$${parseFloat(p.base_price).toFixed(2)}</span>
-            <span class="text-xs text-gray-500">🌍 ${(Math.random()*4+0.3).toFixed(1)} kg CO₂</span>
+      grid.innerHTML = products.slice(0, 12).map(p => {
+        // Get product image if available, otherwise use emoji
+        const productImage = productImages[p.product_id];
+        const displayContent = productImage 
+          ? `<img src="${escHtml(productImage)}" alt="${escHtml(p.product_name)}" class="w-full h-32 object-contain mb-2">`
+          : `<div class="text-4xl text-center py-3 bg-[#228B22]/5 rounded-lg">${getEmoji(p.product_name)}</div>`;
+        
+        return `
+        <div class="bg-white border border-gray-200 rounded-lg p-3 hover:shadow-xl hover:border-[#228B22] transition-all cursor-pointer card-hover" onclick="viewProductDetails(${p.product_id})">
+          ${displayContent}
+          <h3 class="font-medium text-sm text-gray-800 line-clamp-2 h-10 mb-2">${escHtml(p.product_name)}</h3>
+          <div class="text-xl font-bold text-[#228B22]">${formatPriceFCFA(p.base_price)}</div>
+          <div class="text-xs text-gray-500 mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded"><i class="fas fa-leaf text-[#228B22] mr-1"></i>${(Math.random()*4+0.3).toFixed(1)} kg CO₂</div>
+          <div class="flex gap-1 mt-2">
+            <button onclick="addToCart(${p.product_id}, '${escHtml(p.product_name)}', ${p.base_price}); event.stopPropagation();"
+              class="flex-1 amazon-btn py-1.5 rounded-sm text-xs font-bold text-black">
+              Add to Cart
+            </button>
+            <button onclick="viewProductDetails(${p.product_id}); event.stopPropagation();"
+              class="px-2 py-1.5 border border-[#228B22] text-[#228B22] rounded-sm text-xs font-bold hover:bg-[#228B22]/5">
+              Details
+            </button>
           </div>
-          <button onclick="addToCart(${p.product_id}, '${escHtml(p.product_name)}', ${p.base_price})"
-            class="w-full mt-3 bg-[#ff9900] text-black py-2 rounded-md font-semibold hover:bg-[#fa8900] transition text-sm">
-            Add to Cart 🛒
-          </button>
         </div>
-      `).join('');
+      `}).join('');
     }
 
     function renderCategories(cats) {
-      const icons = { 'Eco Home':'🏡','Organic Food':'🥦','Fashion':'👗','Cleaning':'🧼','Beverages':'🍵' };
-      document.getElementById('categoryGrid').innerHTML = cats.map(c => `
-        <div onclick="filterByCategory('${escHtml(c.category_name)}')"
-          class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-green-500 hover:shadow-md transition flex flex-col items-center gap-2">
-          <span class="text-4xl">${icons[c.category_name] || '🌿'}</span>
-          <h3 class="font-semibold text-gray-800 text-sm">${escHtml(c.category_name)}</h3>
-          <span class="text-xs text-gray-500">Sustainable products</span>
+      const icons = { 'Eco Home': '🏡', 'Organic Food': '🥦', 'Fashion': '👗', 'Cleaning': '🧼', 'Beverages': '🍵', 'Beauty': '💄', 'Kitchen': '🍳' };
+      document.getElementById('categoryGrid').innerHTML = cats.slice(0, 4).map(c => `
+        <div onclick="filterByCategory('${escHtml(c.category_name)}')" class="cursor-pointer group">
+          <div class="h-16 bg-[#228B22]/10 rounded-lg flex items-center justify-center text-3xl group-hover:bg-[#228B22]/20 group-hover:scale-105 transition-transform">${icons[c.category_name] || '📦'}</div>
+          <p class="text-xs mt-2 text-center font-medium text-gray-700 group-hover:text-[#228B22]">${escHtml(c.category_name)}</p>
         </div>
       `).join('');
     }
 
+    // Format price in FCAF (XOF - West African CFA franc)
+    function formatPriceFCFA(amount) {
+      return parseInt(amount).toLocaleString('fr-CM') + ' FCAF';
+    }
+
     function renderCart() {
-      const el    = document.getElementById('cartItems');
+      const el = document.getElementById('cartItems');
       const total = document.getElementById('cartTotal');
       const count = document.getElementById('cartCount');
       if (!cartItems.length) {
-        el.innerHTML = '<p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>';
-        if (total) total.textContent = '$0.00';
+        el.innerHTML = '<p class="text-gray-400 text-center mt-8"><i class="fas fa-shopping-basket text-4xl mb-2"></i><br>Your cart is empty</p>';
+        if (total) total.textContent = '0 FCAF';
         if (count) count.textContent = '0';
         return;
       }
@@ -358,25 +533,34 @@
         const price = parseFloat(item.base_price) || 0;
         sum += qty * price;
         return `
-          <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+          <div class="flex gap-2 bg-[#228B22]/5 p-3 rounded-lg border border-[#228B22]/20">
             <span class="text-2xl">${getEmoji(item.product_name)}</span>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold truncate">${escHtml(item.product_name)}</p>
-              <p class="text-xs text-gray-500">$${price.toFixed(2)} × ${qty}</p>
-            </div>
-            <div class="flex items-center gap-1">
-              <button onclick="updateCart(${item.product_id},${qty-1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">−</button>
-              <span class="text-sm font-bold w-5 text-center">${qty}</span>
-              <button onclick="updateCart(${item.product_id},${qty+1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">+</button>
-              <button onclick="removeFromCart(${item.product_id})" class="w-6 h-6 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 ml-1">✕</button>
+            <div class="flex-1">
+              <p class="text-xs font-medium truncate text-gray-800">${escHtml(item.product_name)}</p>
+              <p class="text-xs text-gray-500">${formatPriceFCFA(price)}</p>
+              <div class="flex items-center gap-1 mt-1">
+                <button onclick="updateCart(${item.product_id},${qty-1})" class="w-5 h-5 bg-white border border-[#228B22]/30 rounded text-xs hover:bg-[#228B22]/10">-</button>
+                <span class="text-xs font-bold text-[#228B22]">${qty}</span>
+                <button onclick="updateCart(${item.product_id},${qty+1})" class="w-5 h-5 bg-white border border-[#228B22]/30 rounded text-xs hover:bg-[#228B22]/10">+</button>
+                <button onclick="removeFromCart(${item.product_id})" class="ml-auto text-xs text-red-500 hover:text-red-700">Delete</button>
+              </div>
             </div>
           </div>`;
       }).join('');
-      if (total) total.textContent = `$${sum.toFixed(2)}`;
-      if (count) count.textContent = cartItems.reduce((s,i) => s + (parseInt(i.quantity)||1), 0);
+      if (total) total.textContent = formatPriceFCFA(sum);
+      if (count) count.textContent = cartItems.reduce((s, i) => s + (parseInt(i.quantity) || 1), 0);
     }
 
     async function addToCart(productId, name, price) {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      
+      if (!isLoggedIn) {
+        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+        showNotif('Please sign in to add items to cart', 'info');
+        window.location.href = 'login.html';
+        return;
+      }
+      
       try {
         await fetch('/api/cart', {
           method: 'POST',
@@ -384,7 +568,7 @@
           body: JSON.stringify({ customer_id: CUSTOMER_ID, product_id: productId, quantity: 1 })
         });
         await loadCart();
-        showNotif(`Added ${name} to cart! 🛒`, 'success');
+        showNotif(`Added to cart: ${name}`, 'success');
       } catch { showNotif('Could not add to cart.', 'error'); }
     }
 
@@ -404,7 +588,7 @@
       try {
         await fetch(`/api/cart/${CUSTOMER_ID}/${productId}`, { method: 'DELETE' });
         await loadCart();
-        showNotif('Item removed.', 'info');
+        showNotif('Item removed from cart', 'info');
       } catch { showNotif('Could not remove item.', 'error'); }
     }
 
@@ -418,11 +602,11 @@
 
     function filterByCategory(name) {
       const keywords = {
-        'Eco Home':['bamboo','solar','lamp','home','candle','cutting'],
-        'Organic Food':['organic','coffee','seed','grain'],
-        'Fashion':['shirt','dress','cotton','wear','fashion'],
-        'Cleaning':['soap','cleaner','detergent','brush','laundry'],
-        'Beverages':['tea','juice','water','drink','beverage','bottle','herbal']
+        'Eco Home': ['bamboo', 'solar', 'lamp', 'home', 'candle', 'cutting'],
+        'Organic Food': ['organic', 'coffee', 'seed', 'grain'],
+        'Fashion': ['shirt', 'dress', 'cotton', 'wear', 'fashion'],
+        'Cleaning': ['soap', 'cleaner', 'detergent', 'brush', 'laundry'],
+        'Beverages': ['tea', 'juice', 'water', 'drink', 'beverage', 'bottle', 'herbal']
       };
       const kws = keywords[name] || [name.toLowerCase()];
       const filtered = allProducts.filter(p => kws.some(k => p.product_name.toLowerCase().includes(k)));
@@ -436,15 +620,16 @@
         const res = await fetch('/api/orders');
         const orders = await res.json();
         const c = orders.length;
-        animateNum(document.getElementById('countTrees'),   84  + Math.floor(c * 0.7));
+        animateNum(document.getElementById('countTrees'), 84 + Math.floor(c * 0.7));
         animateNum(document.getElementById('countPlastic'), 126 + Math.floor(c * 1.2));
-        animateNum(document.getElementById('countCO2'),     245 + Math.floor(c * 2.5));
+        animateNum(document.getElementById('countCO2'), 245 + Math.floor(c * 2.5));
       } catch {}
     }
 
     function animateNum(el, target) {
       if (!el) return;
-      let cur = 0; const step = target / 50;
+      let cur = 0;
+      const step = target / 50;
       const t = setInterval(() => {
         cur += step;
         if (cur >= target) { el.textContent = target; clearInterval(t); }
@@ -454,16 +639,16 @@
 
     function handleNewsletter() {
       const email = document.getElementById('ctaEmail')?.value.trim();
-      const note  = document.getElementById('ctaNote');
-      const btn   = document.getElementById('ctaBtn');
+      const note = document.getElementById('ctaNote');
+      const btn = document.getElementById('ctaBtn');
       if (!email || !email.includes('@')) {
-        if (note) { note.textContent = 'Please enter a valid email. 🌿'; note.style.color = '#fca5a5'; }
+        if (note) { note.textContent = 'Please enter a valid email.'; note.style.color = '#dc2626'; }
         return;
       }
-      if (btn) { btn.textContent = 'Subscribing…'; btn.disabled = true; }
+      if (btn) { btn.textContent = 'Subscribing...'; btn.disabled = true; }
       setTimeout(() => {
-        if (note) { note.textContent = 'Welcome to EcoWise! 🌿'; note.style.color = '#86efac'; }
-        if (btn)  { btn.textContent = 'Join EcoWise'; btn.disabled = false; }
+        if (note) { note.textContent = 'Welcome to EcoWise!'; note.style.color = '#16a34a'; }
+        if (btn) { btn.textContent = 'Subscribe'; btn.disabled = false; }
         document.getElementById('ctaEmail').value = '';
         showNotif('Successfully subscribed!', 'success');
       }, 1000);
@@ -474,35 +659,180 @@
       document.getElementById('cartOverlay').classList.toggle('hidden');
     }
 
+    // Navigate to checkout page
+    function goToCheckout() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      if (!isLoggedIn) {
+        // Save current URL to redirect back after login
+        localStorage.setItem('redirectAfterLogin', '/checkout.html');
+        window.location.href = '/login.html';
+        return;
+      }
+      window.location.href = '/checkout.html';
+    }
+
     function showNotif(msg, type = 'success') {
       const el = document.getElementById('notification');
-      const colors = { success:'bg-green-800', error:'bg-red-700', info:'bg-blue-700' };
-      el.className = `fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 ${colors[type]}`;
+      const colors = { success: 'bg-[#228B22]', error: 'bg-red-600', info: 'bg-blue-600' };
+      el.className = `fixed bottom-6 right-6 text-white px-4 py-2.5 rounded-sm shadow-lg z-50 hidden ${colors[type]}`;
       document.getElementById('notifMsg').textContent = msg;
       el.classList.remove('hidden');
       setTimeout(() => el.classList.add('hidden'), 3000);
     }
 
+    function showFeatureInfo(feature) {
+      const info = {
+        carbon: { title: 'Carbon Footprint Tracker', text: 'Track your environmental impact with every purchase. See estimated CO₂ savings and earn EcoPoints for sustainable choices.' },
+        badges: { title: 'Verified Badges', text: 'All products verified for: Fair Trade certification, B Corp compliance, USDA Organic, and more ethical standards.' },
+        shipping: { title: 'Eco Shipping', text: 'Carbon-neutral delivery via optimized routes and electric vehicles. Offset your shipping footprint at no extra cost.' },
+        returns: { title: 'Easy Returns', text: '30-day hassle-free returns. Use our return mailer or drop off at participating stores. Refund processed within 5 days.' }
+      };
+      const f = info[feature];
+      if (f) showNotif(f.title + ': ' + f.text, 'info');
+    }
+
+    async function viewProductDetails(productId) {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      
+      if (!isLoggedIn) {
+        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      try {
+        const product = allProducts.find(p => p.product_id === productId);
+        if (!product) {
+          showNotif('Product not found', 'error');
+          return;
+        }
+        const imageUrl = productImages[productId];
+        const productImage = imageUrl 
+          ? `<img src="${escHtml(imageUrl)}" alt="${escHtml(product.product_name)}" class="w-full h-64 object-contain">`
+          : `<div class="w-full h-64 bg-[#228B22]/5 flex items-center justify-center text-7xl">${getEmoji(product.product_name)}</div>`;
+        
+        const co2 = (Math.random() * 4 + 0.3).toFixed(1);
+        
+        document.getElementById('productDetailContent').innerHTML = `
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 rounded-lg p-4">${productImage}</div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">${escHtml(product.product_name)}</h2>
+              <div class="text-3xl font-bold text-[#228B22] mb-3">${formatPriceFCFA(product.base_price)}</div>
+              <div class="flex gap-2 mb-4">
+                <span class="text-xs bg-[#228B22]/10 text-[#228B22] px-2 py-1 rounded-full"><i class="fas fa-leaf mr-1"></i>${co2} kg CO₂</span>
+                <span class="text-xs bg-[#2E8B57]/10 text-[#2E8B57] px-2 py-1 rounded-full"><i class="fas fa-check mr-1"></i>Verified Eco</span>
+              </div>
+              <div class="text-sm text-gray-600 mb-4">
+                <strong>SKU:</strong> ${product.sku || 'N/A'}<br>
+                <strong>Status:</strong> <span class="${product.is_active ? 'text-green-600' : 'text-gray-500'}">${product.is_active ? 'Active' : 'Inactive'}</span>
+              </div>
+              <div class="text-gray-700 mb-4 text-sm">
+                <strong>Description:</strong><br>
+                ${product.description || 'No description available for this product. This eco-friendly product is sourced sustainably to minimize environmental impact.'}
+              </div>
+              <button onclick="addToCart(${product.product_id}, '${escHtml(product.product_name)}', ${product.base_price}); closeProductDetail();"
+                class="w-full amazon-btn py-3 rounded-sm text-sm font-bold text-black shadow-lg">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        `;
+        document.getElementById('productDetailModal').classList.remove('hidden');
+        document.getElementById('productDetailModal').classList.add('flex');
+      } catch (err) {
+        showNotif('Error loading product details', 'error');
+      }
+    }
+
+    function closeProductDetail() {
+      document.getElementById('productDetailModal').classList.add('hidden');
+      document.getElementById('productDetailModal').classList.remove('flex');
+    }
+
+    document.addEventListener('keyup', e => { if (e.key === 'Escape') closeProductDetail(); });
+    document.getElementById('productDetailModal').addEventListener('click', e => {
+      if (e.target.id === 'productDetailModal') closeProductDetail();
+    });
+
     function getEmoji(name = '') {
       const n = name.toLowerCase();
-      if (n.includes('bamboo'))  return '🎋';
-      if (n.includes('solar'))   return '☀️';
+      if (n.includes('bamboo')) return '🎋';
+      if (n.includes('solar')) return '☀️';
       if (n.includes('tea') || n.includes('herbal')) return '🍵';
-      if (n.includes('coffee'))  return '☕';
+      if (n.includes('coffee')) return '☕';
       if (n.includes('organic')) return '🥬';
       if (n.includes('shirt') || n.includes('cotton') || n.includes('dress')) return '👕';
       if (n.includes('soap') || n.includes('clean') || n.includes('detergent') || n.includes('laundry')) return '🧼';
       if (n.includes('water') || n.includes('bottle')) return '💧';
       if (n.includes('juice')) return '🥤';
-      if (n.includes('lamp'))  return '💡';
+      if (n.includes('lamp')) return '💡';
       if (n.includes('cutting') || n.includes('board')) return '🪵';
-      return '🌱';
+      return '📦';
     }
 
     function escHtml(str) {
       return String(str || '').replace(/[&<>"']/g, m =>
-        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
+
+    // ============================================
+    // USER AUTHENTICATION UI
+    // ============================================
+    function updateAuthUI() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const userName = localStorage.getItem('userName') || 'User';
+      const userRole = localStorage.getItem('userRole');
+      
+      const navSignIn = document.getElementById('navSignIn');
+      const navUser = document.getElementById('navUser');
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      
+      if (isLoggedIn) {
+        // Show logged in state
+        if (navSignIn) navSignIn.classList.add('hidden');
+        if (navUser) {
+          navUser.classList.remove('hidden');
+          if (userNameDisplay) userNameDisplay.textContent = userName.split(' ')[0];
+        }
+      } else {
+        // Show sign in state
+        if (navSignIn) navSignIn.classList.remove('hidden');
+        if (navUser) navUser.classList.add('hidden');
+      }
+    }
+
+    // Make nav links clickable for auth
+    document.addEventListener('DOMContentLoaded', function() {
+      const navSignIn = document.getElementById('navSignIn');
+      const navUser = document.getElementById('navUser');
+      const adminLink = document.getElementById('adminLink');
+      
+      if (navSignIn) {
+        navSignIn.addEventListener('click', function() {
+          window.location.href = 'login.html';
+        });
+      }
+      
+      if (navUser) {
+        navUser.addEventListener('click', function() {
+          const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+          if (!isLoggedIn) {
+            window.location.href = 'login.html';
+          }
+        });
+      }
+      
+      // Admin link - ALWAYS redirects to login to verify admin credentials
+      if (adminLink) {
+        adminLink.addEventListener('click', function() {
+          localStorage.setItem('redirectAfterLogin', '/admin.html');
+          window.location.href = 'login.html';
+        });
+      }
+      
+      updateAuthUI();
+    });
   </script>
 </body>
 </html>

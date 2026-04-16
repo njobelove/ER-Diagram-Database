@@ -5,65 +5,121 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign Up - EcoWise Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --natural-green: #228B22;
+      --forest-green: #2E8B57;
+    }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-green-800 to-green-600 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-r from-[#131921] to-[#1a2a36] min-h-screen flex items-center justify-center p-4">
   <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
     <div class="text-center mb-8">
       <div class="text-4xl mb-2">🌿</div>
-      <h1 class="text-2xl font-bold">Create Account</h1>
+      <h1 class="text-2xl font-bold text-gray-800">Create Account</h1>
       <p class="text-gray-600">Join the EcoWise community</p>
     </div>
     
-    <form onsubmit="signup(event)">
+    <form onsubmit="handleSignup(event)">
       <div class="mb-3">
-        <input type="text" id="name" placeholder="Full Name" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+        <label class="block text-gray-700 text-sm font-bold mb-2">Full Name</label>
+        <input type="text" id="fullName" placeholder="John Doe" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#228B22] focus:border-[#228B22]" required>
       </div>
       <div class="mb-3">
-        <input type="email" id="email" placeholder="Email Address" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#228B22] focus:border-[#228B22]" required>
       </div>
       <div class="mb-6">
-        <input type="password" id="password" placeholder="Password (min 6 characters)" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+        <input type="password" id="password" placeholder="••••••" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#228B22] focus:border-[#228B22]" required>
+        <p class="text-xs text-gray-500 mt-1">At least 6 characters</p>
       </div>
-      <button type="submit" class="w-full bg-[#ff9900] text-black py-3 rounded-lg font-semibold hover:bg-[#fa8900] transition">Create Account</button>
+      
+      <!-- Error/Success message display -->
+      <div id="messageBox" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+      
+      <button type="submit" class="amazon-btn w-full py-3 rounded-lg font-semibold text-black hover:shadow-lg">
+        Create Account
+      </button>
     </form>
     
     <p class="text-center mt-6 text-sm">
-      Already have an account? <a href="login.html" class="text-green-600 font-semibold">Sign In</a>
+      Already have an account? <a href="login.html" class="text-[#228B22] font-semibold hover:underline">Sign In</a>
     </p>
   </div>
 
   <script>
-    function signup(event) {
+    // ============================================
+    // SIGNUP - Register new user in database
+    // ============================================
+    async function handleSignup(event) {
       event.preventDefault();
-      const name = document.getElementById('name').value;
+      
+      const fullName = document.getElementById('fullName').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const messageBox = document.getElementById('messageBox');
       
+      // Validate password
       if (password.length < 6) {
-        alert('Password must be at least 6 characters');
+        messageBox.textContent = 'Password must be at least 6 characters';
+        messageBox.className = 'mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm';
+        messageBox.classList.remove('hidden');
         return;
       }
       
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      if (users.find(u => u.email === email)) {
-        alert('Email already registered. Please login.');
-        return;
+      // Clear previous message
+      messageBox.classList.add('hidden');
+      
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            full_name: fullName, 
+            email: email, 
+            password: password 
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          // Success - show message and redirect
+          messageBox.textContent = 'Account created successfully! Please login.';
+          messageBox.className = 'mb-4 p-3 bg-green-100 border border-green-300 text-green-700 rounded-lg text-sm';
+          messageBox.classList.remove('hidden');
+          
+          // Redirect to login after short delay
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        } else {
+          // Show error
+          messageBox.textContent = data.error || 'Registration failed';
+          messageBox.className = 'mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm';
+          messageBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        messageBox.textContent = 'Registration failed: ' + err.message;
+        messageBox.className = 'mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm';
+        messageBox.classList.remove('hidden');
       }
-      
-      users.push({
-        name: name,
-        email: email,
-        password: password,
-        role: 'user',
-        totalSpent: 0,
-        tier: 'Bronze',
-        createdAt: new Date().toISOString()
-      });
-      
-      localStorage.setItem('users', JSON.stringify(users));
-      alert('Account created successfully! Please login.');
-      window.location.href = 'login.html';
+    }
+    
+    // Check if already logged in
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      const role = localStorage.getItem('userRole');
+      if (role === 'admin') {
+        window.location.href = 'admin-products.html';
+      } else {
+        window.location.href = 'home.html';
+      }
     }
   </script>
 </body>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - EcoWise Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --natural-green: #228B22;
+    }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+  <!-- Navbar -->
+  <header class="bg-gradient-to-r from-[#131921] to-[#1a2a36] text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/home.html" class="text-xl font-bold">
+        <span class="text-[#febd69]">eco</span>wise
+      </a>
+      <div class="flex items-center gap-4">
+        <a href="/home.html" class="text-sm hover:text-[#228B22]">Continue Shopping</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Checkout Content -->
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <h1 class="text-2xl font-bold text-gray-800 mb-6">Checkout</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Order Summary -->
+      <div class="lg:col-span-2">
+        <!-- Shipping Address -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 class="text-lg font-bold text-gray-800 mb-4">Shipping Address</h2>
+          
+          <!-- Saved Addresses -->
+          <div id="savedAddresses" class="space-y-3 mb-4">
+            <p class="text-gray-500 text-sm">Loading addresses...</p>
+          </div>
+          
+          <!-- Add New Address Form -->
+          <button onclick="showAddressForm()" class="text-[#228B22] font-medium text-sm hover:underline">
+            <i class="fas fa-plus mr-1"></i> Add New Address
+          </button>
+          
+          <form id="addressForm" class="hidden mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-2">
+              <label class="block text-sm text-gray-700 mb-1">Street Address</label>
+              <input type="text" id="street" placeholder="123 Main Street"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-[#228B22] focus:border-[#228B22]">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">City</label>
+              <input type="text" id="city" placeholder="Douala"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-[#228B22] focus:border-[#228B22]">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-700 mb-1">Country</label>
+              <input type="text" id="country" placeholder="Cameroon"
+                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-[#228B22] focus:border-[#228B22]">
+            </div>
+            <div class="md:col-span-2">
+              <label class="flex items-center gap-2">
+                <input type="checkbox" id="defaultAddress" class="w-4 h-4 text-[#228B22]">
+                <span class="text-sm text-gray-700">Set as default address</span>
+              </label>
+            </div>
+            <div class="md:col-span-2 flex gap-2">
+              <button type="button" onclick="saveAddress()" class="amazon-btn px-4 py-2 rounded-md text-sm font-bold text-black">Save Address</button>
+              <button type="button" onclick="hideAddressForm()" class="px-4 py-2 border border-gray-300 rounded-md text-sm">Cancel</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 class="text-lg font-bold text-gray-800 mb-4">Payment Method</h2>
+          
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="payment" value="cash" checked class="w-4 h-4 text-[#228B22]">
+              <i class="fas fa-money-bill-wave text-green-600"></i>
+              <span class="text-sm">Cash on Delivery (Paiement à la livraison)</span>
+            </label>
+            
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 opacity-50">
+              <input type="radio" name="payment" value="card" disabled class="w-4 h-4 text-[#228B22]">
+              <i class="fas fa-credit-card text-gray-400"></i>
+              <span class="text-sm text-gray-400">Credit Card (Coming Soon)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-bold text-gray-800 mb-4">Order Items (<span id="itemCount">0</span>)</h2>
+          <div id="checkoutItems" class="space-y-4">
+            <!-- Items loaded via JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+          <h2 class="text-lg font-bold text-gray-800 mb-4">Order Summary</h2>
+          
+          <div class="space-y-2 mb-4">
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Subtotal (<span id="summaryCount">0</span> items)</span>
+              <span class="font-medium" id="subtotal">0 FCAF</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Shipping</span>
+              <span class="font-medium text-green-600">Free</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Tax (VAT 19.25%)</span>
+              <span class="font-medium" id="tax">0 FCAF</span>
+            </div>
+          </div>
+          
+          <div class="border-t pt-4 mb-4">
+            <div class="flex justify-between">
+              <span class="font-bold text-lg">Total</span>
+              <span class="font-bold text-lg text-[#228B22]" id="total">0 FCAF</span>
+            </div>
+          </div>
+
+          <!-- User Tier Discount -->
+          <div id="discountInfo" class="hidden mb-4 p-2 bg-[#228B22]/10 rounded text-sm text-[#228B22]">
+            <i class="fas fa-tag mr-1"></i> <span id="discountText"></span>
+          </div>
+
+          <button onclick="placeOrder()" id="placeOrderBtn" class="amazon-btn w-full py-3 rounded-lg font-bold text-black hover:shadow-lg disabled:opacity-50" disabled>
+            Place Order
+          </button>
+          
+          <p class="text-xs text-gray-500 mt-3 text-center">
+            By placing this order, you agree to our terms and conditions
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-8 max-w-md text-center">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-check text-3xl text-green-600"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-gray-800 mb-2">Order Placed!</h2>
+      <p class="text-gray-600 mb-4">Thank you for your order. You will receive a confirmation soon.</p>
+      <p class="text-sm text-[#228B22] font-bold mb-4">Order ID: <span id="orderId"></span></p>
+      <a href="/home.html" class="amazon-btn inline-block px-6 py-2 rounded-lg font-bold text-black">Continue Shopping</a>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // CHECKOUT - Order Placement System
+    // ============================================
+    
+    // Global variables
+    let cartItems = [];
+    let savedAddresses = [];
+    let selectedAddressId = null;
+    let userTier = 'Bronze';
+    let userDiscount = 0;
+    const CUSTOMER_ID = parseInt(localStorage.getItem('customerId')) || 1;
+
+    // Initialize checkout
+    window.addEventListener('load', async () => {
+      // Check if user is logged in
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Load user tier info
+      userTier = localStorage.getItem('userTier') || 'Bronze';
+      userDiscount = getDiscountForTier(userTier);
+
+      // Load data
+      await Promise.all([
+        loadCart(),
+        loadAddresses()
+      ]);
+
+      updateOrderSummary();
+    });
+
+    // Get discount percentage for tier
+    function getDiscountForTier(tier) {
+      const discounts = {
+        'Bronze': 0,
+        'Silver': 5,
+        'Gold': 10,
+        'Platinum': 15
+      };
+      return discounts[tier] || 0;
+    }
+
+    // Load cart items
+    async function loadCart() {
+      try {
+        const res = await fetch(`/api/cart/${CUSTOMER_ID}`);
+        cartItems = await res.json();
+        
+        renderCartItems();
+        document.getElementById('placeOrderBtn').disabled = cartItems.length === 0;
+      } catch (err) {
+        console.error('Error loading cart:', err);
+      }
+    }
+
+    // Load saved addresses
+    async function loadAddresses() {
+      try {
+        const res = await fetch(`/api/addresses/${CUSTOMER_ID}`);
+        savedAddresses = await res.json();
+        renderAddresses();
+      } catch (err) {
+        // No addresses saved - show empty state
+        document.getElementById('savedAddresses').innerHTML = 
+          '<p class="text-gray-500 text-sm">No addresses saved. Add a new address below.</p>';
+      }
+    }
+
+    // Render cart items in checkout
+    function renderCartItems() {
+      const container = document.getElementById('checkoutItems');
+      const itemCount = document.getElementById('itemCount');
+      
+      if (cartItems.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-center py-8">Your cart is empty</p>';
+        itemCount.textContent = '0';
+        return;
+      }
+
+      itemCount.textContent = cartItems.length;
+
+      container.innerHTML = cartItems.map(item => {
+        const price = parseFloat(item.base_price) || 0;
+        const qty = parseInt(item.quantity) || 1;
+        const total = price * qty;
+        
+        return `
+          <div class="flex items-center gap-4 border-b border-gray-100 pb-4">
+            <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center text-3xl">
+              ${getEmoji(item.product_name)}
+            </div>
+            <div class="flex-1">
+              <h3 class="font-medium text-gray-800">${item.product_name}</h3>
+              <p class="text-sm text-gray-500">Qty: ${qty}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-[#228B22]">${total.toLocaleString('fr-CM')} FCAF</p>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render saved addresses
+    function renderAddresses() {
+      const container = document.getElementById('savedAddresses');
+      
+      if (savedAddresses.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 text-sm">No addresses saved. Add a new address below.</p>';
+        return;
+      }
+
+      // Select first address by default
+      if (!selectedAddressId && savedAddresses.length > 0) {
+        selectedAddressId = savedAddresses[0].address_id;
+      }
+
+      container.innerHTML = savedAddresses.map(addr => `
+        <label class="flex items-start gap-3 p-3 border rounded-lg cursor-pointer ${addr.address_id === selectedAddressId ? 'border-[#228B22] bg-[#228B22]/5' : 'border-gray-200'}">
+          <input type="radio" name="address" value="${addr.address_id}" 
+            ${addr.address_id === selectedAddressId ? 'checked' : ''}
+            onchange="selectAddress(${addr.address_id})"
+            class="mt-1 w-4 h-4 text-[#228B22]">
+          <div>
+            <p class="font-medium text-sm text-gray-800">${addr.street}</p>
+            <p class="text-sm text-gray-500">${addr.city}, ${addr.country}</p>
+            ${addr.is_default === 'true' ? '<span class="text-xs text-[#228B22]">Default</span>' : ''}
+          </div>
+        </label>
+      `).join('');
+    }
+
+    // Select address
+    function selectAddress(addressId) {
+      selectedAddressId = addressId;
+      renderAddresses();
+    }
+
+    // Show address form
+    function showAddressForm() {
+      document.getElementById('addressForm').classList.remove('hidden');
+    }
+
+    // Hide address form
+    function hideAddressForm() {
+      document.getElementById('addressForm').classList.add('hidden');
+      // Clear form
+      document.getElementById('street').value = '';
+      document.getElementById('city').value = '';
+      document.getElementById('country').value = '';
+      document.getElementById('defaultAddress').checked = false;
+    }
+
+    // Save new address
+    async function saveAddress() {
+      const street = document.getElementById('street').value.trim();
+      const city = document.getElementById('city').value.trim();
+      const country = document.getElementById('country').value.trim();
+      const isDefault = document.getElementById('defaultAddress').checked;
+
+      if (!street || !city || !country) {
+        alert('Please fill in all address fields');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/addresses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_id: CUSTOMER_ID,
+            street,
+            city,
+            country,
+            is_default: isDefault
+          })
+        });
+
+        if (res.ok) {
+          hideAddressForm();
+          await loadAddresses();
+          alert('Address saved successfully!');
+        } else {
+          alert('Failed to save address');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // Update order summary with calculations
+    function updateOrderSummary() {
+      // Calculate subtotal
+      let subtotal = 0;
+      cartItems.forEach(item => {
+        subtotal += (parseFloat(item.base_price) || 0) * (parseInt(item.quantity) || 1);
+      });
+
+      // Apply discount if any
+      const discountAmount = (subtotal * userDiscount) / 100;
+      subtotalAfterDiscount = subtotal - discountAmount;
+
+      // Calculate tax (VAT 19.25% in Cameroon)
+      const tax = subtotalAfterDiscount * 0.1925;
+
+      // Total
+      const total = subtotalAfterDiscount + tax;
+
+      // Update display
+      document.getElementById('summaryCount').textContent = cartItems.length;
+      document.getElementById('subtotal').textContent = subtotal.toLocaleString('fr-CM') + ' FCAF';
+      document.getElementById('tax').textContent = tax.toLocaleString('fr-CM') + ' FCAF';
+      document.getElementById('total').textContent = total.toLocaleString('fr-CM') + ' FCAF';
+
+      // Show discount info
+      if (userDiscount > 0) {
+        const discountInfo = document.getElementById('discountInfo');
+        discountInfo.classList.remove('hidden');
+        document.getElementById('discountText').textContent = 
+          `${userTier} tier: ${userDiscount}% discount applied!`;
+      }
+    }
+
+    // Place order
+    async function placeOrder() {
+      // Validate address
+      if (!selectedAddressId && savedAddresses.length > 0) {
+        alert('Please select a shipping address');
+        return;
+      }
+
+      // If no addresses, require one
+      if (savedAddresses.length === 0) {
+        alert('Please add a shipping address first');
+        showAddressForm();
+        return;
+      }
+
+      const btn = document.getElementById('placeOrderBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        // Get payment method
+        const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+
+        // Calculate totals
+        let subtotal = 0;
+        cartItems.forEach(item => {
+          subtotal += (parseFloat(item.base_price) || 0) * (parseInt(item.quantity) || 1);
+        });
+
+        const discountAmount = (subtotal * userDiscount) / 100;
+        const subtotalAfterDiscount = subtotal - discountAmount;
+        const tax = subtotalAfterDiscount * 0.1925;
+        const total = subtotalAfterDiscount + tax;
+
+        // Create order
+        const orderRes = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_id: CUSTOMER_ID,
+            total_amount: Math.round(total),
+            status: 'pending'
+          })
+        });
+
+        if (!orderRes.ok) {
+          throw new Error('Failed to create order');
+        }
+
+        const order = await orderRes.json();
+        const orderId = order.order_id;
+
+        // Create order items
+        for (const item of cartItems) {
+          await fetch('/api/order-items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              order_id: orderId,
+              product_id: item.product_id,
+              quantity: item.quantity,
+              unit_price: item.base_price,
+              discount: 0
+            })
+          });
+        }
+
+        // Create delivery record
+        const selectedAddress = savedAddresses.find(a => a.address_id === selectedAddressId);
+        await fetch('/api/deliveries', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderId,
+            address: `${selectedAddress.street}, ${selectedAddress.city}, ${selectedAddress.country}`,
+            delivery_status: 'pending'
+          })
+        });
+
+        // Create payment record
+        await fetch('/api/payments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            order_id: orderId,
+            payment_method: paymentMethod,
+            payment_status: paymentMethod === 'cash' ? 'pending' : 'completed',
+            amount: total
+          })
+        });
+
+        // Clear cart after successful order
+        await fetch(`/api/cart/${CUSTOMER_ID}`, { method: 'DELETE' });
+
+        // Show success modal
+        document.getElementById('orderId').textContent = orderId;
+        document.getElementById('successModal').classList.remove('hidden');
+        document.getElementById('successModal').classList.add('flex');
+
+      } catch (err) {
+        alert('Error placing order: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Place Order';
+      }
+    }
+
+    // Get emoji for product
+    function getEmoji(name = '') {
+      const n = name.toLowerCase();
+      if (n.includes('bamboo')) return '🎋';
+      if (n.includes('solar')) return '☀️';
+      if (n.includes('tea') || n.includes('herbal')) return '🍵';
+      if (n.includes('coffee')) return '☕';
+      if (n.includes('organic')) return '🥬';
+      if (n.includes('shirt') || n.includes('cotton') || n.includes('dress')) return '👕';
+      if (n.includes('soap') || n.includes('clean')) return '🧼';
+      if (n.includes('water') || n.includes('bottle')) return '💧';
+      if (n.includes('juice')) return '🥤';
+      if (n.includes('lamp')) return '💡';
+      return '📦';
+    }
+
+    // Check login on load
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      localStorage.setItem('redirectAfterLogin', '/checkout.html');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

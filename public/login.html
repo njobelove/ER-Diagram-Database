@@ -5,65 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - EcoWise Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --natural-green: #228B22;
+      --forest-green: #2E8B57;
+    }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-green-800 to-green-600 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-r from-[#131921] to-[#1a2a36] min-h-screen flex items-center justify-center p-4">
   <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
     <div class="text-center mb-8">
       <div class="text-4xl mb-2">🌿</div>
-      <h1 class="text-2xl font-bold">Welcome Back</h1>
+      <h1 class="text-2xl font-bold text-gray-800">Welcome Back</h1>
       <p class="text-gray-600">Sign in to your EcoWise account</p>
     </div>
     
-    <form onsubmit="login(event)">
+    <form onsubmit="handleLogin(event)">
       <div class="mb-4">
         <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-        <input type="email" id="email" placeholder="admin@ecowise.com" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+        <input type="email" id="email" placeholder="you@example.com" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#228B22] focus:border-[#228B22]" required>
       </div>
       <div class="mb-6">
         <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-        <input type="password" id="password" placeholder="••••••" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+        <input type="password" id="password" placeholder="••••••" 
+          class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#228B22] focus:border-[#228B22]" required>
       </div>
-      <button type="submit" class="w-full bg-[#ff9900] text-black py-3 rounded-lg font-semibold hover:bg-[#fa8900] transition">Sign In</button>
+      
+      <!-- Error message display -->
+      <div id="errorMessage" class="hidden mb-4 p-3 bg-red-100 border border-red-300 text-red-700 rounded-lg text-sm"></div>
+      
+      <button type="submit" class="amazon-btn w-full py-3 rounded-lg font-semibold text-black hover:shadow-lg">
+        Sign In
+      </button>
     </form>
     
     <p class="text-center mt-6 text-sm">
-      Don't have an account? <a href="signup.html" class="text-green-600 font-semibold">Create one</a>
+      Don't have an account? <a href="signup.html" class="text-[#228B22] font-semibold hover:underline">Create one</a>
     </p>
-    <p class="text-center mt-4 text-xs text-gray-500">Demo: admin@ecowise.com / admin123</p>
+    
+    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+      <p class="text-xs text-gray-500 text-center font-semibold">Demo Accounts:</p>
+      <p class="text-xs text-gray-500 text-center mt-1">Admin: admin@ecowise.com / admin123</p>
+      <p class="text-xs text-gray-500 text-center">User: Sign up for a new account</p>
+    </div>
   </div>
 
   <script>
-    function login(event) {
+    // ============================================
+    // LOGIN - Authenticate user with database
+    // ============================================
+    async function handleLogin(event) {
       event.preventDefault();
+      
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
+      const errorBox = document.getElementById('errorMessage');
       
-      const users = JSON.parse(localStorage.getItem('users') || '[]');
-      const user = users.find(u => u.email === email && u.password === password);
+      // Clear previous error
+      errorBox.classList.add('hidden');
+      errorBox.textContent = '';
       
-      if (user) {
-        localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('userEmail', user.email);
-        localStorage.setItem('userName', user.name);
-        localStorage.setItem('userRole', user.role || 'user');
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
         
-        if (user.role === 'admin') {
-          window.location.href = 'admin-dashboard.html';
+        const data = await res.json();
+        
+        if (res.ok) {
+          // Store user info in localStorage
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userEmail', data.email);
+          localStorage.setItem('userName', data.full_name);
+          localStorage.setItem('userRole', data.role);
+          localStorage.setItem('customerId', data.customer_id);
+          localStorage.setItem('userTier', data.tier || 'Bronze');
+          
+          // Check if trying to access admin
+          const redirectTo = localStorage.getItem('redirectAfterLogin');
+          
+          // If going to admin page but not admin role - show error
+          if (redirectTo === '/admin.html' && data.role !== 'admin') {
+            errorBox.textContent = 'Admin access required. Please login with admin credentials.';
+            errorBox.classList.remove('hidden');
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userRole');
+            return;
+          }
+          
+          // Redirect based on role or saved redirect
+          if (redirectTo === '/admin.html' && data.role === 'admin') {
+            window.location.href = 'admin-products.html';
+          } else if (redirectTo && redirectTo !== '/admin.html') {
+            const target = redirectTo;
+            localStorage.removeItem('redirectAfterLogin');
+            window.location.href = target;
+          } else if (data.role === 'admin') {
+            window.location.href = 'admin-products.html';
+          } else {
+            window.location.href = 'home.html';
+          }
         } else {
-          window.location.href = 'home.html';
+          // Show error
+          errorBox.textContent = data.error || 'Invalid email or password';
+          errorBox.classList.remove('hidden');
         }
-      } else {
-        alert('Invalid email or password. Use admin@ecowise.com / admin123');
+      } catch (err) {
+        errorBox.textContent = 'Login failed: ' + err.message;
+        errorBox.classList.remove('hidden');
       }
     }
     
-    // Initialize default admin if no users exist
-    if (!localStorage.getItem('users')) {
-      const defaultUsers = [
-        { name: 'Admin User', email: 'admin@ecowise.com', password: 'admin123', role: 'admin', createdAt: new Date().toISOString() }
-      ];
-      localStorage.setItem('users', JSON.stringify(defaultUsers));
+    // Check if already logged in
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      const role = localStorage.getItem('userRole');
+      if (role === 'admin') {
+        window.location.href = 'admin-products.html';
+      } else {
+        window.location.href = 'home.html';
+      }
     }
   </script>
 </body>

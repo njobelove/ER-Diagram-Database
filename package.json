@@ -5,5 +5,8 @@
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "multer": "^2.1.1"
   }
 }

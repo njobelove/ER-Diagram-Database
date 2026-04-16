@@ -5,44 +5,543 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Account - EcoWise Market</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root { --natural-green: #228B22; }
+    .amazon-btn { background: linear-gradient(to bottom,#febd69,#f0a30a); }
+  </style>
 </head>
 <body class="bg-gray-100">
 
-  <div class="bg-[#131921] text-white px-4 py-3">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <a href="home.html" class="text-2xl font-bold">🌿 EcoWise</a>
-      <button onclick="logout()" class="bg-red-600 px-3 py-1 rounded text-sm">Logout</button>
+  <!-- Navbar -->
+  <header class="bg-gradient-to-r from-[#131921] to-[#1a2a36] text-white">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a href="/home.html" class="text-xl font-bold">
+          <span class="text-[#febd69]">eco</span>wise
+        </a>
+        <span class="text-gray-400">|</span>
+        <span class="text-sm">My Account</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <a href="/home.html" class="text-sm hover:text-[#228B22]">Home</a>
+        <button onclick="logout()" class="text-sm hover:text-red-400">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    
+    <!-- User Info Card -->
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 bg-[#228B22] rounded-full flex items-center justify-center text-white text-2xl font-bold" id="userInitial">
+          U
+        </div>
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800" id="userName">Welcome</h1>
+          <p class="text-gray-600" id="userEmail">user@email.com</p>
+          <span class="inline-block mt-1 px-3 py-1 bg-[#228B22]/10 text-[#228B22] rounded-full text-sm font-medium" id="userTierBadge">
+            Bronze Member
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-6 border-b border-gray-200 overflow-x-auto">
+      <button onclick="showTab('orders')" id="tab-orders" class="px-6 py-3 text-[#228B22] border-b-2 border-[#228B22] font-medium whitespace-nowrap">
+        <i class="fas fa-shopping-bag mr-2"></i>My Orders
+      </button>
+      <button onclick="showTab('addresses')" id="tab-addresses" class="px-6 py-3 text-gray-600 hover:text-[#228B22] whitespace-nowrap">
+        <i class="fas fa-map-marker-alt mr-2"></i>My Addresses
+      </button>
+      <button onclick="showTab('settings')" id="tab-settings" class="px-6 py-3 text-gray-600 hover:text-[#228B22] whitespace-nowrap">
+        <i class="fas fa-cog mr-2"></i>Settings
+      </button>
+    </div>
+
+    <!-- Orders Tab -->
+    <div id="panel-orders">
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody" class="divide-y divide-gray-200">
+            <tr>
+              <td colspan="5" class="px-4 py-8 text-center text-gray-500">Loading orders...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Addresses Tab -->
+    <div id="panel-addresses" class="hidden">
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-lg font-bold text-gray-800">My Addresses</h2>
+          <button onclick="showAddAddressForm()" class="amazon-btn px-4 py-2 rounded-md text-sm font-bold text-black">
+            <i class="fas fa-plus mr-1"></i>Add Address
+          </button>
+        </div>
+        
+        <!-- Add Address Form -->
+        <div id="addAddressForm" class="hidden mb-6 p-4 bg-gray-50 rounded-lg">
+          <h3 class="font-medium text-gray-800 mb-3">Add New Address</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="newStreet" placeholder="Street Address" class="border rounded-md px-3 py-2">
+            <input type="text" id="newCity" placeholder="City" class="border rounded-md px-3 py-2">
+            <input type="text" id="newCountry" placeholder="Country" class="border rounded-md px-3 py-2">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" id="newDefault" class="w-4 h-4 text-[#228B22]">
+              <span class="text-sm">Set as default</span>
+            </label>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <button onclick="saveNewAddress()" class="amazon-btn px-4 py-2 rounded-md text-sm font-bold text-black">Save</button>
+            <button onclick="hideAddAddressForm()" class="px-4 py-2 border rounded-md text-sm">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Address List -->
+        <div id="addressesList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="panel-settings" class="hidden">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Account Settings</h2>
+        
+        <!-- Profile Settings -->
+        <div class="mb-6">
+          <h3 class="font-medium text-gray-700 mb-3">Profile Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Full Name</label>
+              <input type="text" id="settingsName" class="w-full border rounded-md px-3 py-2">
+            </div>
+            <div>
+              <label class="block text-sm text-gray-600 mb-1">Email</label>
+              <input type="email" id="settingsEmail" class="w-full border rounded-md px-3 py-2 bg-gray-100" disabled>
+            </div>
+          </div>
+          <button onclick="updateProfile()" class="mt-3 amazon-btn px-4 py-2 rounded-md text-sm font-bold text-black">
+            Update Profile
+          </button>
+        </div>
+
+        <!-- Change Password -->
+        <div class="mb-6 pt-4 border-t">
+          <h3 class="font-medium text-gray-700 mb-3">Change Password</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input type="password" id="currentPassword" placeholder="Current Password" class="border rounded-md px-3 py-2">
+            <input type="password" id="newPassword" placeholder="New Password" class="border rounded-md px-3 py-2">
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" class="border rounded-md px-3 py-2">
+          </div>
+          <button onclick="changePassword()" class="mt-3 px-4 py-2 bg-[#228B22] text-white rounded-md text-sm hover:bg-[#1e7a1e]">
+            Change Password
+          </button>
+        </div>
+
+        <!-- Notification Settings -->
+        <div class="pt-4 border-t">
+          <h3 class="font-medium text-gray-700 mb-3">Notifications</h3>
+          <label class="flex items-center gap-3 mb-2">
+            <input type="checkbox" id="notifOrders" checked class="w-4 h-4 text-[#228B22]">
+            <span class="text-sm">Order updates and status</span>
+          </label>
+          <label class="flex items-center gap-3 mb-2">
+            <input type="checkbox" id="notifPromotions" checked class="w-4 h-4 text-[#228B22]">
+            <span class="text-sm">Promotions and deals</span>
+          </label>
+          <label class="flex items-center gap-3">
+            <input type="checkbox" id="notifNewsletter" class="w-4 h-4 text-[#228B22]">
+            <span class="text-sm">Newsletter</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div id="orderDetailModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">Order Details</h2>
+        <button onclick="closeOrderDetail()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+      </div>
+      <div id="orderDetailContent"></div>
     </div>
   </div>
 
-  <div class="max-w-4xl mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">My Account</h1>
-    <div class="bg-white rounded-lg shadow p-6" id="accountInfo"></div>
-  </div>
-
   <script>
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) window.location.href = 'login.html';
-    
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-    
-    document.getElementById('accountInfo').innerHTML = `
-      <div class="space-y-4">
-        <div><label class="font-semibold">Name:</label> <span>${userName}</span></div>
-        <div><label class="font-semibold">Email:</label> <span>${userEmail}</span></div>
-        <div><label class="font-semibold">Member Since:</label> <span>${new Date().toLocaleDateString()}</span></div>
-        <hr class="my-4"><a href="orders.html" class="inline-block bg-[#ff9900] text-black px-4 py-2 rounded">View My Orders</a>
-      </div>
-    `;
-    
-    function logout() {
-      localStorage.removeItem('isLoggedIn');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userRole');
+    // ============================================
+    // USER ACCOUNT MANAGEMENT
+    // ============================================
+
+    let customerId = parseInt(localStorage.getItem('customerId')) || 1;
+    let userOrders = [];
+    let userAddresses = [];
+
+    // Initialize on page load
+    window.addEventListener('load', async () => {
+      // Check if logged in
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      // Load user info into UI
+      document.getElementById('userName').textContent = localStorage.getItem('userName') || 'User';
+      document.getElementById('userEmail').textContent = localStorage.getItem('userEmail') || '';
+      document.getElementById('userInitial').textContent = (localStorage.getItem('userName') || 'U').charAt(0).toUpperCase();
+      
+      const tier = localStorage.getItem('userTier') || 'Bronze';
+      document.getElementById('userTierBadge').textContent = tier + ' Member';
+
+      // Pre-fill settings form
+      document.getElementById('settingsName').value = localStorage.getItem('userName') || '';
+      document.getElementById('settingsEmail').value = localStorage.getItem('userEmail') || '';
+
+      // Load data from server
+      await Promise.all([
+        loadUserOrders(),
+        loadUserAddresses()
+      ]);
+    });
+
+    // ============================================
+    // TAB NAVIGATION
+    // ============================================
+    function showTab(tab) {
+      // Hide all panels
+      document.getElementById('panel-orders').classList.add('hidden');
+      document.getElementById('panel-addresses').classList.add('hidden');
+      document.getElementById('panel-settings').classList.add('hidden');
+      
+      // Reset tab styles
+      ['orders', 'addresses', 'settings'].forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        el.classList.remove('text-[#228B22]', 'border-b-2', 'border-[#228B22]');
+        el.classList.add('text-gray-600');
+      });
+
+      // Show selected panel
+      document.getElementById('panel-' + tab).classList.remove('hidden');
+      
+      // Highlight active tab
+      const activeTab = document.getElementById('tab-' + tab);
+      activeTab.classList.add('text-[#228B22]', 'border-b-2', 'border-[#228B22]');
+      activeTab.classList.remove('text-gray-600');
+    }
+
+    // ============================================
+    // LOAD USER ORDERS
+    // ============================================
+    async function loadUserOrders() {
+      try {
+        // Get orders for this customer
+        const res = await fetch(`/api/orders/customer/${customerId}`);
+        userOrders = await res.json();
+        renderOrders();
+      } catch (err) {
+        console.error('Error loading orders:', err);
+        document.getElementById('ordersTableBody').innerHTML = 
+          '<tr><td colspan="5" class="px-4 py-8 text-center text-red-500">Error loading orders</td></tr>';
+      }
+    }
+
+    // Render orders table
+    function renderOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      
+      if (userOrders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No orders yet. Start shopping!</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = userOrders.map(order => {
+        // Status badge colors
+        const statusColors = {
+          'pending': 'bg-yellow-100 text-yellow-800',
+          'processing': 'bg-blue-100 text-blue-800',
+          'shipped': 'bg-purple-100 text-purple-800',
+          'delivered': 'bg-green-100 text-green-800',
+          'cancelled': 'bg-red-100 text-red-800'
+        };
+        const statusClass = statusColors[order.status] || 'bg-gray-100 text-gray-800';
+        
+        return `
+          <tr class="hover:bg-gray-50">
+            <td class="px-4 py-4 font-medium text-[#228B22]">#${order.order_id}</td>
+            <td class="px-4 py-4 text-gray-600">${new Date(order.order_date).toLocaleDateString('fr-CM')}</td>
+            <td class="px-4 py-4 font-bold text-[#228B22]">${parseInt(order.total_amount).toLocaleString('fr-CM')} FCAF</td>
+            <td class="px-4 py-4">
+              <span class="px-2 py-1 rounded-full text-xs font-medium ${statusClass}">
+                ${order.status || 'pending'}
+              </span>
+            </td>
+            <td class="px-4 py-4">
+              <button onclick="viewOrderDetail(${order.order_id})" class="text-[#228B22] hover:underline text-sm">
+                View Details
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // View order details in modal
+    async function viewOrderDetail(orderId) {
+      try {
+        // Get order items
+        const res = await fetch(`/api/order-items/${orderId}`);
+        const items = await res.json();
+        
+        const order = userOrders.find(o => o.order_id === orderId);
+        
+        let content = `
+          <div class="mb-4">
+            <p class="text-sm text-gray-600">Order ID: <span class="font-bold text-[#228B22]">#${orderId}</span></p>
+            <p class="text-sm text-gray-600">Date: ${new Date(order.order_date).toLocaleDateString('fr-CM')}</p>
+          </div>
+          <div class="space-y-3 mb-4">
+        `;
+        
+        items.forEach(item => {
+          content += `
+            <div class="flex items-center gap-3 border-b border-gray-100 pb-2">
+              <div class="w-12 h-12 bg-gray-100 rounded flex items-center justify-center text-2xl">📦</div>
+              <div class="flex-1">
+                <p class="font-medium text-sm">Product ID: ${item.product_id}</p>
+                <p class="text-xs text-gray-500">Qty: ${item.quantity} × ${parseInt(item.unit_price).toLocaleString('fr-CM')} FCAF</p>
+              </div>
+              <p class="font-bold text-sm">${(item.quantity * item.unit_price).toLocaleString('fr-CM')} FCAF</p>
+            </div>
+          `;
+        });
+        
+        content += `
+          </div>
+          <div class="border-t pt-3 flex justify-between font-bold">
+            <span>Total</span>
+            <span class="text-[#228B22]">${parseInt(order.total_amount).toLocaleString('fr-CM')} FCAF</span>
+          </div>
+        `;
+        
+        document.getElementById('orderDetailContent').innerHTML = content;
+        document.getElementById('orderDetailModal').classList.remove('hidden');
+        document.getElementById('orderDetailModal').classList.add('flex');
+        
+      } catch (err) {
+        alert('Error loading order details: ' + err.message);
+      }
+    }
+
+    function closeOrderDetail() {
+      document.getElementById('orderDetailModal').classList.add('hidden');
+      document.getElementById('orderDetailModal').classList.remove('flex');
+    }
+
+    // ============================================
+    // MANAGE ADDRESSES
+    // ============================================
+    async function loadUserAddresses() {
+      try {
+        const res = await fetch(`/api/addresses/${customerId}`);
+        userAddresses = await res.json();
+        renderAddresses();
+      } catch (err) {
+        console.error('Error loading addresses:', err);
+      }
+    }
+
+    function renderAddresses() {
+      const container = document.getElementById('addressesList');
+      
+      if (userAddresses.length === 0) {
+        container.innerHTML = '<p class="text-gray-500 col-span-2 text-center py-8">No addresses saved. Add your first address!</p>';
+        return;
+      }
+
+      container.innerHTML = userAddresses.map(addr => `
+        <div class="p-4 border rounded-lg ${addr.is_default === 'true' ? 'border-[#228B22] bg-[#228B22]/5' : 'border-gray-200'}">
+          <div class="flex justify-between items-start">
+            <div>
+              <p class="font-medium text-gray-800">${addr.street}</p>
+              <p class="text-sm text-gray-500">${addr.city}, ${addr.country}</p>
+              ${addr.is_default === 'true' ? '<span class="text-xs text-[#228B22]">Default address</span>' : ''}
+            </div>
+            <button onclick="deleteAddress(${addr.address_id})" class="text-red-500 hover:text-red-700">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function showAddAddressForm() {
+      document.getElementById('addAddressForm').classList.remove('hidden');
+    }
+
+    function hideAddAddressForm() {
+      document.getElementById('addAddressForm').classList.add('hidden');
+      // Clear form
+      document.getElementById('newStreet').value = '';
+      document.getElementById('newCity').value = '';
+      document.getElementById('newCountry').value = '';
+      document.getElementById('newDefault').checked = false;
+    }
+
+    async function saveNewAddress() {
+      const street = document.getElementById('newStreet').value.trim();
+      const city = document.getElementById('newCity').value.trim();
+      const country = document.getElementById('newCountry').value.trim();
+      const isDefault = document.getElementById('newDefault').checked;
+
+      if (!street || !city || !country) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/addresses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_id: customerId,
+            street, city, country,
+            is_default: isDefault
+          })
+        });
+
+        if (res.ok) {
+          hideAddAddressForm();
+          await loadUserAddresses();
+          alert('Address saved successfully!');
+        } else {
+          alert('Failed to save address');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteAddress(addressId) {
+      if (!confirm('Delete this address?')) return;
+
+      try {
+        const res = await fetch(`/api/addresses/${addressId}`, { method: 'DELETE' });
+        if (res.ok) {
+          await loadUserAddresses();
+        } else {
+          alert('Failed to delete address');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // ============================================
+    // PROFILE SETTINGS
+    // ============================================
+    async function updateProfile() {
+      const name = document.getElementById('settingsName').value.trim();
+      if (!name) {
+        alert('Name cannot be empty');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/customers/${customerId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ full_name: name })
+        });
+
+        if (res.ok) {
+          localStorage.setItem('userName', name);
+          document.getElementById('userName').textContent = name;
+          document.getElementById('userInitial').textContent = name.charAt(0).toUpperCase();
+          alert('Profile updated successfully!');
+        } else {
+          alert('Failed to update profile');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function changePassword() {
+      const current = document.getElementById('currentPassword').value;
+      const newPass = document.getElementById('newPassword').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      if (!current || !newPass || !confirm) {
+        alert('Please fill in all password fields');
+        return;
+      }
+
+      if (newPass !== confirm) {
+        alert('New passwords do not match');
+        return;
+      }
+
+      if (newPass.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/auth/change-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_id: customerId,
+            current_password: current,
+            new_password: newPass
+          })
+        });
+
+        if (res.ok) {
+          alert('Password changed successfully!');
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+        } else {
+          const err = await res.json();
+          alert(err.error || 'Failed to change password');
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    // ============================================
+    // CHECK LOGIN
+    // ============================================
+    if (localStorage.getItem('isLoggedIn') !== 'true') {
+      localStorage.setItem('redirectAfterLogin', '/account.html');
       window.location.href = 'login.html';
+    }
+
+    // ============================================
+    // LOGOUT
+    // ============================================
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/home.html';
     }
   </script>
 </body>
