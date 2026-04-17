@@ -1,0 +1,87 @@
+/* EcoWise Market - Complete Styles */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Amazon-style Navigation */
+.amazon-nav {
+  background: #131921;
+}
+
+.amazon-nav-bottom {
+  background: #232f3e;
+}
+
+/* Cards */
+.amazon-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease;
+}
+
+.amazon-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Product Cards */
+.product-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Buttons */
+.btn-eco {
+  background: #ff9900;
+  color: #000;
+  transition: all 0.2s ease;
+}
+
+.btn-eco:hover {
+  background: #fa8900;
+}
+
+/* Sidebar Active State */
+.sidebar-active {
+  background: #232f3e;
+  color: white;
+  border-left: 4px solid #ff9900;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar-active {
+    border-left: none;
+    border-right: 4px solid #ff9900;
+  }
+}

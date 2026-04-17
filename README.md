@@ -159,6 +159,22 @@ This table records exchange rates between currencies over time.
 - The `Product_Attributes` table implements a many‑to‑many relationship between products and attributes.
 - `Exchange_Rates` supports historical currency conversion by storing rates with an effective date.
 - The schema is designed to support core e‑commerce functionality: customers, orders, products, inventory, and multi‑currency.
+# EcoWise Market - Sustainable Shopping Platform
+
+## 🌿 Overview
+EcoWise Market is an Amazon-style e-commerce platform focused on sustainable and eco-friendly products.
+
+## 🔐 Login Credentials
+- **Admin**: admin@ecowise.com / admin123
+- **Users**: Create your own account via Sign Up
+
+## 🚀 Deployment
+
+### Deploy to Vercel
+
+1. **Install Vercel CLI**
+```bash
+npm i -g vercel
 
 # The hosted link
 https://eco-marketing.vercel.app/

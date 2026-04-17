@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoWise Market - Sustainable Shopping</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .animate-marquee { animation: marquee 30s linear infinite; }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+  <!-- ═══ NAVBAR ═══ -->
+  <div class="bg-[#131921] text-white sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center space-x-6">
+        <a href="/" class="text-2xl font-bold hover:text-[#ff9900] transition">
+          <span class="text-[#ff9900]">🌿</span> Eco<span class="text-[#ff9900]">Wise</span>
+        </a>
+        <div class="hidden md:flex items-center bg-white rounded-md">
+          <input type="text" placeholder="Search eco-friendly products..." id="searchInput"
+            class="w-96 px-4 py-2 rounded-l-md text-black outline-none">
+          <button onclick="handleSearch()" class="bg-[#ff9900] px-4 py-2 rounded-r-md text-black hover:bg-[#fa8900]">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </div>
+      <div class="flex items-center space-x-5 text-sm">
+        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
+          <span class="text-gray-300">Hello, Guest</span>
+          <span class="font-bold">Account &amp; Lists</span>
+        </div>
+        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
+          <span class="text-gray-300">Returns</span>
+          <span class="font-bold">&amp; Orders</span>
+        </div>
+        <div class="relative flex items-center space-x-1 hover:text-[#ff9900] cursor-pointer" onclick="toggleCart()">
+          <i class="fas fa-shopping-cart text-2xl"></i>
+          <span id="cartCount" class="absolute -top-2 left-3 bg-[#ff9900] text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">0</span>
+          <span class="font-bold ml-4">Cart</span>
+        </div>
+      </div>
+    </div>
+    <!-- Category strip -->
+    <div class="bg-[#232f3e] px-4 py-2">
+      <div class="max-w-7xl mx-auto flex items-center space-x-6 text-sm overflow-x-auto">
+        <a href="#featured"    class="hover:text-[#ff9900] whitespace-nowrap"><i class="fas fa-bars mr-1"></i> All Products</a>
+        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🌱 Eco Home</a>
+        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🥬 Organic Food</a>
+        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">👕 Fashion</a>
+        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">♻️ Zero Waste</a>
+        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🔋 Green Tech</a>
+        <a href="#impact"      class="hover:text-[#ff9900] whitespace-nowrap">🌍 Our Impact</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ HERO ═══ -->
+  <div class="relative bg-gradient-to-r from-green-900 to-green-600 text-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 py-20 relative z-10">
+      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1 text-sm mb-6">
+        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+        🌍 Carbon-Neutral Shipping Available
+      </div>
+      <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
+        Shop with the<br><span class="text-[#ff9900]">Planet</span> in Mind 🌍
+      </h1>
+      <p class="text-xl mb-8 max-w-2xl text-green-100">
+        Every product verified for ethical sourcing, fair trade &amp; environmental responsibility.
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <a href="#featured" class="bg-[#ff9900] text-black px-8 py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">Shop Today's Deals →</a>
+        <a href="#categories" class="border border-white text-white px-8 py-3 rounded-md font-semibold hover:bg-white hover:text-green-900 transition">Browse Categories</a>
+      </div>
+      <div class="flex flex-wrap gap-8 mt-10">
+        <div><strong id="countTrees" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">Trees Planted</p></div>
+        <div class="w-px bg-white/20"></div>
+        <div><strong id="countPlastic" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">kg Plastic Saved</p></div>
+        <div class="w-px bg-white/20"></div>
+        <div><strong id="countCO2" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">tonnes CO₂ Offset</p></div>
+      </div>
+    </div>
+    <div class="absolute right-10 top-10 text-[12rem] opacity-5 select-none pointer-events-none">🌿</div>
+  </div>
+
+  <!-- ═══ MARQUEE ═══ -->
+  <div class="bg-[#232f3e] text-green-300 overflow-hidden py-3 text-sm">
+    <div class="flex gap-12 animate-marquee whitespace-nowrap">
+      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
+      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
+      <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
+      <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
+      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
+      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
+    </div>
+  </div>
+
+  <!-- ═══ FEATURED PRODUCTS ═══ -->
+  <div class="max-w-7xl mx-auto px-4 py-12" id="featured">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Today's Eco Deals</span>
+        <h2 class="text-2xl font-bold mt-2">Featured <span class="text-green-700">Products</span></h2>
+      </div>
+      <a href="#featured" class="text-[#ff9900] font-semibold hover:underline text-sm">See all →</a>
+    </div>
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
+      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
+      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
+      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
+    </div>
+  </div>
+
+  <!-- ═══ CATEGORIES ═══ -->
+  <div class="bg-white py-12" id="categories">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-8">
+        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Browse</span>
+        <h2 class="text-2xl font-bold mt-2">Our <span class="text-green-700">Sustainable</span> Categories</h2>
+      </div>
+      <div id="categoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ IMPACT ═══ -->
+  <div class="bg-[#232f3e] text-white py-14" id="impact">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+      <div><i class="fas fa-tree text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">12,480</div><div class="text-green-300 mt-1">Trees Planted</div></div>
+      <div><i class="fas fa-recycle text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">4,750 kg</div><div class="text-green-300 mt-1">Plastic Saved</div></div>
+      <div><i class="fas fa-cloud-sun text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">320 t</div><div class="text-green-300 mt-1">CO₂ Offset</div></div>
+    </div>
+  </div>
+
+  <!-- ═══ FEATURES ═══ -->
+  <div class="bg-green-900 text-white py-14">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <span class="text-xs font-bold uppercase tracking-widest text-green-300 bg-green-800 px-3 py-1 rounded-full">What Makes Us Different</span>
+        <h2 class="text-2xl font-bold mt-2">Features That <span class="text-[#ff9900]">Matter</span></h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
+          <span class="text-3xl">🌡️</span><h3 class="font-bold text-lg mt-3 mb-2">Carbon Footprint Tracker</h3>
+          <p class="text-green-300 text-sm">Every product shows its exact carbon cost from farm to your front door.</p>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
+          <span class="text-3xl">🏅</span><h3 class="font-bold text-lg mt-3 mb-2">Verified Sustainability Badges</h3>
+          <p class="text-green-300 text-sm">Third-party certifications — Fair Trade, B Corp, USDA Organic.</p>
+        </div>
+        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
+          <span class="text-3xl">🏭</span><h3 class="font-bold text-lg mt-3 mb-2">Local Warehouse Routing</h3>
+          <p class="text-green-300 text-sm">Ships from the nearest warehouse to minimise delivery emissions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ REVIEWS ═══ -->
+  <div class="bg-gray-50 py-14">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center mb-8">
+        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Community</span>
+        <h2 class="text-2xl font-bold mt-2">What Our <span class="text-green-700">Shoppers</span> Say</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center font-bold text-green-800">A</div>
+            <div><p class="font-semibold">Amara K.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
+            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 94</span>
+          </div>
+          <p class="text-gray-600 text-sm">"The Carbon Tracker blew my mind. I can literally see my impact before checking out."</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center font-bold text-amber-800">J</div>
+            <div><p class="font-semibold">James T.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
+            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 88</span>
+          </div>
+          <p class="text-gray-600 text-sm">"Switched from bottled supplements to refillable. Saved money AND the planet!"</p>
+        </div>
+        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-800">S</div>
+            <div><p class="font-semibold">Sofia R.</p><p class="text-[#ff9900] text-sm">★★★★☆</p></div>
+            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 79</span>
+          </div>
+          <p class="text-gray-600 text-sm">"Ships from a warehouse 8 miles away — the lowest delivery footprint I've ever seen."</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ CTA ═══ -->
+  <div class="bg-green-800 text-white py-14 text-center relative overflow-hidden">
+    <div class="absolute right-8 top-4 text-[10rem] opacity-5 pointer-events-none select-none">🍃</div>
+    <div class="relative z-10 max-w-lg mx-auto px-4">
+      <h2 class="text-3xl font-bold mb-2">Ready to Shop <span class="text-[#ff9900]">Sustainably?</span></h2>
+      <p class="text-green-200 mb-6">Join 200,000+ conscious shoppers making a difference.</p>
+      <div class="flex gap-2">
+        <input id="ctaEmail" type="email" placeholder="Enter your email…"
+          class="flex-1 px-4 py-3 rounded-l-md text-black outline-none">
+        <button id="ctaBtn" onclick="handleNewsletter()"
+          class="bg-[#ff9900] text-black px-6 py-3 rounded-r-md font-semibold hover:bg-[#fa8900] transition">
+          Join EcoWise
+        </button>
+      </div>
+      <p id="ctaNote" class="text-green-300 text-sm mt-3">No spam. Unsubscribe anytime. 🌿</p>
+    </div>
+  </div>
+
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="bg-[#131921] text-gray-400 py-10">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div>
+        <div class="text-white text-xl font-bold mb-2">🌿 EcoWise<span class="text-[#ff9900]">Market</span></div>
+        <p class="text-sm">Turning shopping into a force for good.</p>
+      </div>
+      <div><h4 class="text-white mb-3 font-semibold">Shop</h4>
+        <ul class="space-y-1 text-sm"><li><a href="#featured" class="hover:text-[#ff9900]">All Products</a></li><li><a href="#categories" class="hover:text-[#ff9900]">Categories</a></li></ul>
+      </div>
+      <div><h4 class="text-white mb-3 font-semibold">Features</h4>
+        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">Carbon Tracker</a></li><li><a href="#" class="hover:text-[#ff9900]">Impact Dashboard</a></li></ul>
+      </div>
+      <div><h4 class="text-white mb-3 font-semibold">Company</h4>
+        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">About Us</a></li><li><a href="#" class="hover:text-[#ff9900]">Our Mission</a></li></ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-800 pt-6 text-center text-sm">© 2025 EcoWise Market. Built carbon-neutrally 🌍</div>
+  </footer>
+
+  <!-- ═══ CART SIDEBAR ═══ -->
+  <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleCart()"></div>
+  <div id="cartSidebar" class="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+    <div class="flex items-center justify-between px-4 py-4 bg-[#131921] text-white">
+      <h3 class="font-bold text-lg">🛒 Your Cart</h3>
+      <button onclick="toggleCart()" class="text-gray-300 hover:text-white text-xl">✕</button>
+    </div>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3">
+      <p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>
+    </div>
+    <div class="p-4 border-t">
+      <div class="flex justify-between font-bold text-lg mb-3">
+        <span>Total:</span><span id="cartTotal">$0.00</span>
+      </div>
+      <button class="w-full bg-[#ff9900] text-black py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ NOTIFICATION ═══ -->
+  <div id="notification" class="fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 hidden">
+    <span id="notifMsg"></span>
+  </div>
+
+  <!-- ═══ JAVASCRIPT — all connected to Neon database ═══ -->
+  <script>
+    let allProducts = [];
+    let cartItems   = [];
+    const CUSTOMER_ID = 1;
+
+    window.addEventListener('load', async () => {
+      await loadProducts();
+      await loadCategories();
+      await loadCart();
+      loadImpactStats();
+    });
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/products');
+        allProducts = await res.json();
+        renderProducts(allProducts);
+      } catch {
+        document.getElementById('productsGrid').innerHTML =
+          '<p class="col-span-4 text-center text-gray-500 py-8">Could not load products.</p>';
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const res  = await fetch('/api/categories');
+        const cats = await res.json();
+        renderCategories(cats);
+      } catch {
+        document.getElementById('categoryGrid').innerHTML =
+          '<p class="col-span-5 text-center text-gray-500">Could not load categories.</p>';
+      }
+    }
+
+    async function loadCart() {
+      try {
+        const res = await fetch(`/api/cart/${CUSTOMER_ID}`);
+        cartItems = await res.json();
+        renderCart();
+      } catch { cartItems = []; }
+    }
+
+    function renderProducts(products) {
+      const grid = document.getElementById('productsGrid');
+      if (!products.length) {
+        grid.innerHTML = '<p class="col-span-4 text-center text-gray-500 py-8">No products found. 🌿</p>';
+        return;
+      }
+      grid.innerHTML = products.map(p => `
+        <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-shadow flex flex-col">
+          <div class="text-6xl text-center py-4 bg-green-50 rounded-lg mb-3">${getEmoji(p.product_name)}</div>
+          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full w-fit mb-2">🌱 Eco-Friendly</span>
+          <h3 class="font-semibold text-gray-800 flex-1 text-sm">${escHtml(p.product_name)}</h3>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-xl font-bold text-green-700">$${parseFloat(p.base_price).toFixed(2)}</span>
+            <span class="text-xs text-gray-500">🌍 ${(Math.random()*4+0.3).toFixed(1)} kg CO₂</span>
+          </div>
+          <button onclick="addToCart(${p.product_id}, '${escHtml(p.product_name)}', ${p.base_price})"
+            class="w-full mt-3 bg-[#ff9900] text-black py-2 rounded-md font-semibold hover:bg-[#fa8900] transition text-sm">
+            Add to Cart 🛒
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderCategories(cats) {
+      const icons = { 'Eco Home':'🏡','Organic Food':'🥦','Fashion':'👗','Cleaning':'🧼','Beverages':'🍵' };
+      document.getElementById('categoryGrid').innerHTML = cats.map(c => `
+        <div onclick="filterByCategory('${escHtml(c.category_name)}')"
+          class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-green-500 hover:shadow-md transition flex flex-col items-center gap-2">
+          <span class="text-4xl">${icons[c.category_name] || '🌿'}</span>
+          <h3 class="font-semibold text-gray-800 text-sm">${escHtml(c.category_name)}</h3>
+          <span class="text-xs text-gray-500">Sustainable products</span>
+        </div>
+      `).join('');
+    }
+
+    function renderCart() {
+      const el    = document.getElementById('cartItems');
+      const total = document.getElementById('cartTotal');
+      const count = document.getElementById('cartCount');
+      if (!cartItems.length) {
+        el.innerHTML = '<p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>';
+        if (total) total.textContent = '$0.00';
+        if (count) count.textContent = '0';
+        return;
+      }
+      let sum = 0;
+      el.innerHTML = cartItems.map(item => {
+        const qty = parseInt(item.quantity) || 1;
+        const price = parseFloat(item.base_price) || 0;
+        sum += qty * price;
+        return `
+          <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
+            <span class="text-2xl">${getEmoji(item.product_name)}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-semibold truncate">${escHtml(item.product_name)}</p>
+              <p class="text-xs text-gray-500">$${price.toFixed(2)} × ${qty}</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="updateCart(${item.product_id},${qty-1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">−</button>
+              <span class="text-sm font-bold w-5 text-center">${qty}</span>
+              <button onclick="updateCart(${item.product_id},${qty+1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">+</button>
+              <button onclick="removeFromCart(${item.product_id})" class="w-6 h-6 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 ml-1">✕</button>
+            </div>
+          </div>`;
+      }).join('');
+      if (total) total.textContent = `$${sum.toFixed(2)}`;
+      if (count) count.textContent = cartItems.reduce((s,i) => s + (parseInt(i.quantity)||1), 0);
+    }
+
+    async function addToCart(productId, name, price) {
+      try {
+        await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer_id: CUSTOMER_ID, product_id: productId, quantity: 1 })
+        });
+        await loadCart();
+        showNotif(`Added ${name} to cart! 🛒`, 'success');
+      } catch { showNotif('Could not add to cart.', 'error'); }
+    }
+
+    async function updateCart(productId, quantity) {
+      if (quantity <= 0) return removeFromCart(productId);
+      try {
+        await fetch(`/api/cart/${CUSTOMER_ID}/${productId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity })
+        });
+        await loadCart();
+      } catch { showNotif('Could not update cart.', 'error'); }
+    }
+
+    async function removeFromCart(productId) {
+      try {
+        await fetch(`/api/cart/${CUSTOMER_ID}/${productId}`, { method: 'DELETE' });
+        await loadCart();
+        showNotif('Item removed.', 'info');
+      } catch { showNotif('Could not remove item.', 'error'); }
+    }
+
+    function handleSearch() {
+      const term = (document.getElementById('searchInput')?.value || '').toLowerCase();
+      const filtered = allProducts.filter(p => p.product_name.toLowerCase().includes(term));
+      renderProducts(filtered);
+      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    document.getElementById('searchInput')?.addEventListener('keyup', e => { if (e.key === 'Enter') handleSearch(); });
+
+    function filterByCategory(name) {
+      const keywords = {
+        'Eco Home':['bamboo','solar','lamp','home','candle','cutting'],
+        'Organic Food':['organic','coffee','seed','grain'],
+        'Fashion':['shirt','dress','cotton','wear','fashion'],
+        'Cleaning':['soap','cleaner','detergent','brush','laundry'],
+        'Beverages':['tea','juice','water','drink','beverage','bottle','herbal']
+      };
+      const kws = keywords[name] || [name.toLowerCase()];
+      const filtered = allProducts.filter(p => kws.some(k => p.product_name.toLowerCase().includes(k)));
+      renderProducts(filtered.length ? filtered : allProducts);
+      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
+      showNotif(`Showing ${name} products`, 'info');
+    }
+
+    async function loadImpactStats() {
+      try {
+        const res = await fetch('/api/orders');
+        const orders = await res.json();
+        const c = orders.length;
+        animateNum(document.getElementById('countTrees'),   84  + Math.floor(c * 0.7));
+        animateNum(document.getElementById('countPlastic'), 126 + Math.floor(c * 1.2));
+        animateNum(document.getElementById('countCO2'),     245 + Math.floor(c * 2.5));
+      } catch {}
+    }
+
+    function animateNum(el, target) {
+      if (!el) return;
+      let cur = 0; const step = target / 50;
+      const t = setInterval(() => {
+        cur += step;
+        if (cur >= target) { el.textContent = target; clearInterval(t); }
+        else el.textContent = Math.floor(cur);
+      }, 40);
+    }
+
+    function handleNewsletter() {
+      const email = document.getElementById('ctaEmail')?.value.trim();
+      const note  = document.getElementById('ctaNote');
+      const btn   = document.getElementById('ctaBtn');
+      if (!email || !email.includes('@')) {
+        if (note) { note.textContent = 'Please enter a valid email. 🌿'; note.style.color = '#fca5a5'; }
+        return;
+      }
+      if (btn) { btn.textContent = 'Subscribing…'; btn.disabled = true; }
+      setTimeout(() => {
+        if (note) { note.textContent = 'Welcome to EcoWise! 🌿'; note.style.color = '#86efac'; }
+        if (btn)  { btn.textContent = 'Join EcoWise'; btn.disabled = false; }
+        document.getElementById('ctaEmail').value = '';
+        showNotif('Successfully subscribed!', 'success');
+      }, 1000);
+    }
+
+    function toggleCart() {
+      document.getElementById('cartSidebar').classList.toggle('translate-x-full');
+      document.getElementById('cartOverlay').classList.toggle('hidden');
+    }
+
+    function showNotif(msg, type = 'success') {
+      const el = document.getElementById('notification');
+      const colors = { success:'bg-green-800', error:'bg-red-700', info:'bg-blue-700' };
+      el.className = `fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 ${colors[type]}`;
+      document.getElementById('notifMsg').textContent = msg;
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    function getEmoji(name = '') {
+      const n = name.toLowerCase();
+      if (n.includes('bamboo'))  return '🎋';
+      if (n.includes('solar'))   return '☀️';
+      if (n.includes('tea') || n.includes('herbal')) return '🍵';
+      if (n.includes('coffee'))  return '☕';
+      if (n.includes('organic')) return '🥬';
+      if (n.includes('shirt') || n.includes('cotton') || n.includes('dress')) return '👕';
+      if (n.includes('soap') || n.includes('clean') || n.includes('detergent') || n.includes('laundry')) return '🧼';
+      if (n.includes('water') || n.includes('bottle')) return '💧';
+      if (n.includes('juice')) return '🥤';
+      if (n.includes('lamp'))  return '💡';
+      if (n.includes('cutting') || n.includes('board')) return '🪵';
+      return '🌱';
+    }
+
+    function escHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, m =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    }
+  </script>
+</body>
+</html>

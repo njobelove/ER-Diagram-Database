@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - EcoWise Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gradient-to-r from-green-800 to-green-600 min-h-screen flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-2">🌿</div>
+      <h1 class="text-2xl font-bold">Create Account</h1>
+      <p class="text-gray-600">Join the EcoWise community</p>
+    </div>
+    
+    <form onsubmit="signup(event)">
+      <div class="mb-3">
+        <input type="text" id="name" placeholder="Full Name" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+      </div>
+      <div class="mb-3">
+        <input type="email" id="email" placeholder="Email Address" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+      </div>
+      <div class="mb-6">
+        <input type="password" id="password" placeholder="Password (min 6 characters)" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+      </div>
+      <button type="submit" class="w-full bg-[#ff9900] text-black py-3 rounded-lg font-semibold hover:bg-[#fa8900] transition">Create Account</button>
+    </form>
+    
+    <p class="text-center mt-6 text-sm">
+      Already have an account? <a href="login.html" class="text-green-600 font-semibold">Sign In</a>
+    </p>
+  </div>
+
+  <script>
+    function signup(event) {
+      event.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      if (password.length < 6) {
+        alert('Password must be at least 6 characters');
+        return;
+      }
+      
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      if (users.find(u => u.email === email)) {
+        alert('Email already registered. Please login.');
+        return;
+      }
+      
+      users.push({
+        name: name,
+        email: email,
+        password: password,
+        role: 'user',
+        totalSpent: 0,
+        tier: 'Bronze',
+        createdAt: new Date().toISOString()
+      });
+      
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Account created successfully! Please login.');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

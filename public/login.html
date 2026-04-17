@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - EcoWise Market</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="bg-gradient-to-r from-green-800 to-green-600 min-h-screen flex items-center justify-center">
+  <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-2">🌿</div>
+      <h1 class="text-2xl font-bold">Welcome Back</h1>
+      <p class="text-gray-600">Sign in to your EcoWise account</p>
+    </div>
+    
+    <form onsubmit="login(event)">
+      <div class="mb-4">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+        <input type="email" id="email" placeholder="admin@ecowise.com" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+      </div>
+      <div class="mb-6">
+        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+        <input type="password" id="password" placeholder="••••••" class="w-full border rounded-lg px-4 py-3 focus:outline-none focus:border-[#ff9900]" required>
+      </div>
+      <button type="submit" class="w-full bg-[#ff9900] text-black py-3 rounded-lg font-semibold hover:bg-[#fa8900] transition">Sign In</button>
+    </form>
+    
+    <p class="text-center mt-6 text-sm">
+      Don't have an account? <a href="signup.html" class="text-green-600 font-semibold">Create one</a>
+    </p>
+    <p class="text-center mt-4 text-xs text-gray-500">Demo: admin@ecowise.com / admin123</p>
+  </div>
+
+  <script>
+    function login(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find(u => u.email === email && u.password === password);
+      
+      if (user) {
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem('userName', user.name);
+        localStorage.setItem('userRole', user.role || 'user');
+        
+        if (user.role === 'admin') {
+          window.location.href = 'admin-dashboard.html';
+        } else {
+          window.location.href = 'home.html';
+        }
+      } else {
+        alert('Invalid email or password. Use admin@ecowise.com / admin123');
+      }
+    }
+    
+    // Initialize default admin if no users exist
+    if (!localStorage.getItem('users')) {
+      const defaultUsers = [
+        { name: 'Admin User', email: 'admin@ecowise.com', password: 'admin123', role: 'admin', createdAt: new Date().toISOString() }
+      ];
+      localStorage.setItem('users', JSON.stringify(defaultUsers));
+    }
+  </script>
+</body>
+</html>
