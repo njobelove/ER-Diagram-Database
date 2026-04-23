@@ -6,145 +6,129 @@ const { Pool } = require('pg');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const path    = require('path');
-const { Pool } = require('pg');
+console.log('📁 Environment check:');
+console.log('   DATABASE_URL exists:', process.env.DATABASE_URL ? '✅ Yes' : '❌ No');
 
-const app  = express();
-const PORT = process.env.PORT || 3000;
-
-// ── DATABASE CONNECTION ───────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-pool.query('SET search_path TO public').then(() => {
-  console.log('Connected to Neon database successfully!');
-}).catch(err => {
-  console.error('Database connection failed:', err.message);
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('Database connection failed:', err.message);
+    console.error('❌ Database connection failed:', err.message);
   } else {
-    console.log('Connected to Neon database successfully!');
+    console.log('✅ Connected to Neon database successfully!');
     release();
   }
 });
 
-// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Root route
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'WelcomePage', 'index.html'));
-    client.query('SET search_path TO public', (err2) => {
-      release();
-      if (err2) {
-        console.error('Search path error:', err2.message);
-      } else {
-        console.log('Connected to Neon database successfully!');
-      }
-    });
-  }
-});
-
-// ── MIDDLEWARE ────────────────────────────────────
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// ── ROOT ROUTE ────────────────────────────────────
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ── PRODUCTS ──────────────────────────────────────
+// ── TEST ROUTE ───────────────────────────
+app.get('/api/test', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT NOW() as current_time');
+    res.json({ success: true, message: 'Database connected!', time: result.rows[0].current_time });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── PRODUCTS ──────────────────────────────
 app.get('/api/products', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM products WHERE is_active = true');
-    const result = await pool.query(
-      'SELECT * FROM products WHERE is_active = true ORDER BY product_id'
-    );
+    const result = await pool.query('SELECT * FROM products WHERE is_active = true ORDER BY product_id');
     res.json(result.rows);
   } catch (err) {
+    console.error('Products error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── CATEGORIES ────────────────────────────────────
+// ── CATEGORIES ────────────────────────────
 app.get('/api/categories', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM category ORDER BY category_id');
     res.json(result.rows);
   } catch (err) {
+    console.error('Categories error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── CUSTOMERS ─────────────────────────────────────
+// ── CUSTOMERS ─────────────────────────────
 app.get('/api/customers', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM customers');
     const result = await pool.query('SELECT * FROM customers ORDER BY customer_id');
     res.json(result.rows);
   } catch (err) {
+    console.error('Customers error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── ORDERS ────────────────────────────────────────
+// ── ORDERS ────────────────────────────────
 app.get('/api/orders', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM orders ORDER BY order_date DESC');
     res.json(result.rows);
   } catch (err) {
+    console.error('Orders error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── CATEGORIES ────────────────────────────────────
-app.get('/api/categories', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM category');
-// ── CART — GET items for a customer ───────────────
+// ── CART — SIMPLIFIED VERSION (works with any structure) ──
 app.get('/api/cart/:customer_id', async (req, res) => {
   try {
     const { customer_id } = req.params;
+    
+    // Get cart items with product details
     const result = await pool.query(
-      `SELECT cart.card_id, cart.customer_id, cart.product_id, cart.quantity, cart.added_at,
-              products.product_name, products.base_price
-       FROM cart
-       JOIN products ON cart.product_id = products.product_id
-       WHERE cart.customer_id = $1
-       ORDER BY cart.added_at DESC`,
+      `SELECT 
+        c.customer_id, 
+        c.product_id, 
+        c.quantity,
+        p.product_name, 
+        p.base_price
+       FROM cart c
+       JOIN products p ON c.product_id = p.product_id
+       WHERE c.customer_id = $1`,
       [customer_id]
     );
     res.json(result.rows);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Cart GET error:', err.message);
+    // If table doesn't exist, return empty array
+    if (err.message.includes('does not exist')) {
+      res.json([]);
+    } else {
+      res.status(500).json({ error: err.message });
+    }
   }
 });
 
-// ── CART ──────────────────────────────────────────
-app.get('/api/cart/:customer_id', async (req, res) => {
-  try {
-    const { customer_id } = req.params;
-    const result = await pool.query(
-      'SELECT cart.*, products.product_name, products.base_price FROM cart JOIN products ON cart.product_id = products.product_id WHERE cart.customer_id = $1',
-// ── CART — ADD item ───────────────────────────────
 app.post('/api/cart', async (req, res) => {
   try {
     const { customer_id, product_id, quantity } = req.body;
-
+    
+    // Check if item exists
     const existing = await pool.query(
-      'SELECT * FROM cart WHERE customer_id = $1 AND product_id = $2',
+      'SELECT quantity FROM cart WHERE customer_id = $1 AND product_id = $2',
       [customer_id, product_id]
     );
-
+    
     if (existing.rows.length > 0) {
-      const newQty = parseInt(existing.rows[0].quantity) + (quantity || 1);
+      const newQty = existing.rows[0].quantity + (quantity || 1);
       await pool.query(
         'UPDATE cart SET quantity = $1 WHERE customer_id = $2 AND product_id = $3',
         [newQty, customer_id, product_id]
@@ -155,22 +139,27 @@ app.post('/api/cart', async (req, res) => {
         [customer_id, product_id, quantity || 1]
       );
     }
-
+    
+    // Return updated cart
     const result = await pool.query(
-      `SELECT cart.card_id, cart.customer_id, cart.product_id, cart.quantity, cart.added_at,
-              products.product_name, products.base_price
-       FROM cart
-       JOIN products ON cart.product_id = products.product_id
-       WHERE cart.customer_id = $1`,
+      `SELECT 
+        c.customer_id, 
+        c.product_id, 
+        c.quantity,
+        p.product_name, 
+        p.base_price
+       FROM cart c
+       JOIN products p ON c.product_id = p.product_id
+       WHERE c.customer_id = $1`,
       [customer_id]
     );
     res.json(result.rows);
   } catch (err) {
+    console.error('Cart POST error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── CART — UPDATE quantity ────────────────────────
 app.put('/api/cart/:customer_id/:product_id', async (req, res) => {
   try {
     const { customer_id, product_id } = req.params;
@@ -181,11 +170,11 @@ app.put('/api/cart/:customer_id/:product_id', async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
+    console.error('Cart PUT error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── CART — REMOVE item ────────────────────────────
 app.delete('/api/cart/:customer_id/:product_id', async (req, res) => {
   try {
     const { customer_id, product_id } = req.params;
@@ -195,28 +184,58 @@ app.delete('/api/cart/:customer_id/:product_id', async (req, res) => {
     );
     res.json({ success: true });
   } catch (err) {
+    console.error('Cart DELETE error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ── INVENTORY ─────────────────────────────────────
+// ── INVENTORY ──────────────────────────────
 app.get('/api/inventory', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT inventory.*, products.product_name, warehouses.location FROM inventory JOIN products ON inventory.product_id = products.product_id JOIN warehouses ON inventory.warehouse_id = warehouses.warehouse_id'
-      `SELECT inventory.*, products.product_name, warehouses.location
-       FROM inventory
-       JOIN products   ON inventory.product_id   = products.product_id
-       JOIN warehouses ON inventory.warehouse_id = warehouses.warehouse_id`
+      `SELECT i.*, p.product_name, w.location
+       FROM inventory i
+       JOIN products p ON i.product_id = p.product_id
+       JOIN warehouses w ON i.warehouse_id = w.warehouse_id`
     );
     res.json(result.rows);
   } catch (err) {
+    console.error('Inventory error:', err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-// Start server
-// ── START SERVER ──────────────────────────────────
+// ── HTML ROUTES ────────────────────────────
+app.get('/home.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'home.html'));
+});
+
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/signup.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'signup.html'));
+});
+
+app.get('/admin-dashboard.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
+});
+
+app.get('/cart.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cart.html'));
+});
+
+// Fallback for other HTML files
+app.get('*.html', (req, res) => {
+  const filePath = path.join(__dirname, 'public', req.path);
+  res.sendFile(filePath);
+});
+
+// ── START SERVER ────────────────────────────
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`\n🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📦 Products API: http://localhost:${PORT}/api/products`);
+  console.log(`🏠 Home: http://localhost:${PORT}/home.html`);
+  console.log(`\n💡 If cart errors appear, the table may need to be created.\n`);
 });

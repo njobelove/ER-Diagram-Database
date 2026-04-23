@@ -3,470 +3,893 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EcoWise Market - Sustainable Shopping</title>
+  <title>EcoWise Market - Sustainable Amazon-style Shopping</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     .animate-marquee { animation: marquee 30s linear infinite; }
+    
+    .product-card {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    
+    .deal-badge {
+      background: linear-gradient(135deg, #ff9900 0%, #ff6b00 100%);
+    }
+    
+    .rating-stars {
+      color: #ffa41c;
+    }
+    
+    /* Amazon-style carousel */
+    .carousel-slide {
+      transition: transform 0.5s ease-in-out;
+    }
+    
+    /* Language selector dropdown */
+    .language-dropdown {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      min-width: 200px;
+    }
+    
+    .language-btn:hover .language-dropdown {
+      display: block;
+    }
+    
+    /* Toast notification */
+    .toast {
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    /* Voice search button */
+    .voice-search-btn {
+      transition: all 0.3s ease;
+    }
+    
+    .voice-search-btn.listening {
+      background-color: #ff4444;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Loading spinner */
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #ff9900;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-[#EAEDED]">
 
-  <!-- ═══ NAVBAR ═══ -->
+  <!-- ═══ AMAZON-STYLE NAVBAR ═══ -->
   <div class="bg-[#131921] text-white sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
-      <div class="flex items-center space-x-6">
-        <a href="/" class="text-2xl font-bold hover:text-[#ff9900] transition">
+    <div class="max-w-full mx-auto px-4 py-2 flex items-center justify-between flex-wrap gap-3">
+      <!-- Logo -->
+      <div class="flex items-center space-x-2">
+        <a href="/home.html" class="text-2xl font-bold hover:text-[#ff9900] transition border border-transparent hover:border-white p-1">
           <span class="text-[#ff9900]">🌿</span> Eco<span class="text-[#ff9900]">Wise</span>
+          <span class="text-xs block text-gray-300">.com</span>
         </a>
-        <div class="hidden md:flex items-center bg-white rounded-md">
-          <input type="text" placeholder="Search eco-friendly products..." id="searchInput"
-            class="w-96 px-4 py-2 rounded-l-md text-black outline-none">
-          <button onclick="handleSearch()" class="bg-[#ff9900] px-4 py-2 rounded-r-md text-black hover:bg-[#fa8900]">
+      </div>
+      
+      <!-- Delivery location with map -->
+      <div class="hidden lg:flex items-center text-xs hover:border hover:border-white p-1 cursor-pointer group relative" onclick="openLocationModal()">
+        <i class="fas fa-map-marker-alt text-[#ff9900] mr-1"></i>
+        <div>
+          <span class="text-gray-300">Deliver to</span>
+          <span class="font-bold block -mt-1" id="deliveryLocation">Cameroon</span>
+        </div>
+      </div>
+      
+      <!-- Search Bar with Voice Search -->
+      <div class="flex-1 max-w-3xl mx-4">
+        <div class="flex items-center bg-white rounded-md overflow-hidden">
+          <select id="searchCategory" class="hidden md:block bg-gray-100 text-black px-3 py-2 text-sm border-r border-gray-300">
+            <option value="all">All</option>
+            <option value="Eco Home">Eco Home</option>
+            <option value="Organic Food">Organic Food</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Green Tech">Green Tech</option>
+            <option value="Zero Waste">Zero Waste</option>
+          </select>
+          <input type="text" placeholder="Search sustainable products..." id="searchInput"
+            class="flex-1 px-4 py-2 text-black outline-none">
+          <button onclick="voiceSearch()" class="voice-search-btn bg-gray-100 px-3 py-2 text-gray-600 hover:bg-gray-200 transition" id="voiceSearchBtn">
+            <i class="fas fa-microphone"></i>
+          </button>
+          <button onclick="handleSearch()" class="bg-[#ff9900] px-6 py-2 text-black hover:bg-[#fa8900] transition">
             <i class="fas fa-search"></i>
           </button>
         </div>
       </div>
-      <div class="flex items-center space-x-5 text-sm">
-        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
-          <span class="text-gray-300">Hello, Guest</span>
-          <span class="font-bold">Account &amp; Lists</span>
+      
+      <!-- Right side nav items -->
+      <div class="flex items-center space-x-4 text-sm">
+        <!-- Language selector -->
+        <div class="relative language-btn">
+          <div class="flex items-center hover:border hover:border-white p-1 cursor-pointer">
+            <i class="fas fa-globe text-sm"></i>
+            <span class="ml-1 font-bold" id="currentLanguage">EN</span>
+            <i class="fas fa-chevron-down text-xs ml-1"></i>
+          </div>
+          <div class="language-dropdown">
+            <div class="p-2">
+              <div class="font-bold text-black px-3 py-2 border-b">Choose Language</div>
+              <div onclick="changeLanguage('en')" class="text-black px-3 py-2 hover:bg-gray-100 cursor-pointer">🇬🇧 English</div>
+              <div onclick="changeLanguage('fr')" class="text-black px-3 py-2 hover:bg-gray-100 cursor-pointer">🇫🇷 Français</div>
+              <div onclick="changeLanguage('es')" class="text-black px-3 py-2 hover:bg-gray-100 cursor-pointer">🇪🇸 Español</div>
+              <div onclick="changeLanguage('de')" class="text-black px-3 py-2 hover:bg-gray-100 cursor-pointer">🇩🇪 Deutsch</div>
+              <div onclick="changeLanguage('cm')" class="text-black px-3 py-2 hover:bg-gray-100 cursor-pointer">🇨🇲 Camfranglais</div>
+            </div>
+          </div>
         </div>
-        <div class="flex flex-col text-xs hover:text-[#ff9900] cursor-pointer">
-          <span class="text-gray-300">Returns</span>
-          <span class="font-bold">&amp; Orders</span>
+        
+        <!-- Account & Lists -->
+        <div id="authButtons" class="flex items-center space-x-3">
+          <a href="login.html" class="hover:border hover:border-white p-1 block">
+            <span class="text-xs text-gray-300">Hello, sign in</span>
+            <span class="font-bold text-sm">Account & Lists</span>
+          </a>
         </div>
-        <div class="relative flex items-center space-x-1 hover:text-[#ff9900] cursor-pointer" onclick="toggleCart()">
+        
+        <div id="userInfo" class="hidden hover:border hover:border-white p-1 cursor-pointer relative group">
+          <span class="text-xs text-gray-300">Welcome,</span>
+          <span id="userName" class="font-bold text-sm block -mt-1"></span>
+          <div class="absolute hidden group-hover:block bg-white text-black rounded-md shadow-lg top-full right-0 mt-1 min-w-[200px] z-50">
+            <div class="p-2">
+              <div class="font-bold px-3 py-2 border-b">Your Account</div>
+              <div onclick="viewOrders()" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">📦 Your Orders</div>
+              <div onclick="viewWishlist()" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">❤️ Wishlist</div>
+              <div onclick="viewAddresses()" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">📍 Addresses</div>
+              <div onclick="viewPaymentMethods()" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">💳 Payment Methods</div>
+              <div onclick="logout()" class="px-3 py-2 hover:bg-gray-100 cursor-pointer text-red-600">🚪 Sign Out</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Returns & Orders -->
+        <div class="hidden lg:block hover:border hover:border-white p-1 cursor-pointer" onclick="viewOrders()">
+          <span class="text-xs text-gray-300">Returns</span>
+          <span class="font-bold text-sm block -mt-1">& Orders</span>
+        </div>
+        
+        <!-- Cart -->
+        <div class="relative flex items-center hover:border hover:border-white p-1 cursor-pointer" onclick="toggleCart()">
           <i class="fas fa-shopping-cart text-2xl"></i>
-          <span id="cartCount" class="absolute -top-2 left-3 bg-[#ff9900] text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">0</span>
-          <span class="font-bold ml-4">Cart</span>
+          <span id="cartCount" class="absolute -top-1 left-3 bg-[#ff9900] text-black rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">0</span>
+          <span class="font-bold ml-1 hidden lg:inline">Cart</span>
         </div>
       </div>
     </div>
-    <!-- Category strip -->
-    <div class="bg-[#232f3e] px-4 py-2">
-      <div class="max-w-7xl mx-auto flex items-center space-x-6 text-sm overflow-x-auto">
-        <a href="#featured"    class="hover:text-[#ff9900] whitespace-nowrap"><i class="fas fa-bars mr-1"></i> All Products</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🌱 Eco Home</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🥬 Organic Food</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">👕 Fashion</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">♻️ Zero Waste</a>
-        <a href="#categories"  class="hover:text-[#ff9900] whitespace-nowrap">🔋 Green Tech</a>
-        <a href="#impact"      class="hover:text-[#ff9900] whitespace-nowrap">🌍 Our Impact</a>
+    
+    <!-- Secondary navbar - Categories -->
+    <div class="bg-[#232f3e] px-4 py-1">
+      <div class="max-w-full mx-auto flex items-center space-x-4 text-sm overflow-x-auto">
+        <div class="relative group">
+          <a href="#" class="hover:text-[#ff9900] whitespace-nowrap py-1 flex items-center">
+            <i class="fas fa-bars mr-1"></i> All
+          </a>
+          <div class="absolute hidden group-hover:block bg-white text-black rounded-md shadow-lg top-full left-0 mt-1 min-w-[250px] z-50">
+            <div class="p-2">
+              <div onclick="filterByCategory('Eco Home')" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">🏡 Eco Home</div>
+              <div onclick="filterByCategory('Organic Food')" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">🥬 Organic Food</div>
+              <div onclick="filterByCategory('Fashion')" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">👗 Fashion</div>
+              <div onclick="filterByCategory('Zero Waste')" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">♻️ Zero Waste</div>
+              <div onclick="filterByCategory('Green Tech')" class="px-3 py-2 hover:bg-gray-100 cursor-pointer">🔋 Green Tech</div>
+            </div>
+          </div>
+        </div>
+        <a href="#featured" class="hover:text-[#ff9900] whitespace-nowrap">Today's Deals</a>
+        <a href="#" class="hover:text-[#ff9900] whitespace-nowrap" onclick="openSustainabilityTracker()">🌱 Sustainability Tracker</a>
+        <a href="#" class="hover:text-[#ff9900] whitespace-nowrap" onclick="openCarbonCalculator()">🌍 Carbon Calculator</a>
+        <a href="#" class="hover:text-[#ff9900] whitespace-nowrap" onclick="openCommunityMarket()">🤝 Community Market</a>
+        <a href="#" class="hover:text-[#ff9900] whitespace-nowrap" onclick="openLiveSupport()">💬 Live Support</a>
+        <a href="#categories" class="hover:text-[#ff9900] whitespace-nowrap">Gift Cards</a>
+        <a href="#categories" class="hover:text-[#ff9900] whitespace-nowrap">Sell</a>
+        <a id="adminLink" href="admin-dashboard.html" class="hidden hover:text-[#ff9900] whitespace-nowrap">
+          <i class="fas fa-chalkboard-user mr-1"></i> Admin Dashboard
+        </a>
       </div>
     </div>
   </div>
 
-  <!-- ═══ HERO ═══ -->
-  <div class="relative bg-gradient-to-r from-green-900 to-green-600 text-white overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 py-20 relative z-10">
-      <div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1 text-sm mb-6">
-        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-        🌍 Carbon-Neutral Shipping Available
-      </div>
-      <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-        Shop with the<br><span class="text-[#ff9900]">Planet</span> in Mind 🌍
-      </h1>
-      <p class="text-xl mb-8 max-w-2xl text-green-100">
-        Every product verified for ethical sourcing, fair trade &amp; environmental responsibility.
-      </p>
-      <div class="flex flex-wrap gap-4">
-        <a href="#featured" class="bg-[#ff9900] text-black px-8 py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">Shop Today's Deals →</a>
-        <a href="#categories" class="border border-white text-white px-8 py-3 rounded-md font-semibold hover:bg-white hover:text-green-900 transition">Browse Categories</a>
-      </div>
-      <div class="flex flex-wrap gap-8 mt-10">
-        <div><strong id="countTrees" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">Trees Planted</p></div>
-        <div class="w-px bg-white/20"></div>
-        <div><strong id="countPlastic" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">kg Plastic Saved</p></div>
-        <div class="w-px bg-white/20"></div>
-        <div><strong id="countCO2" class="text-3xl font-bold text-[#ff9900]">—</strong><p class="text-green-200 text-sm">tonnes CO₂ Offset</p></div>
-      </div>
+  <!-- ═══ AMAZON-STYLE HERO CAROUSEL ═══ -->
+  <div class="relative overflow-hidden h-64 md:h-96">
+    <div class="absolute inset-0 bg-gradient-to-r from-green-900 to-green-600">
+      <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1200" alt="Hero" class="w-full h-full object-cover opacity-40">
     </div>
-    <div class="absolute right-10 top-10 text-[12rem] opacity-5 select-none pointer-events-none">🌿</div>
-  </div>
-
-  <!-- ═══ MARQUEE ═══ -->
-  <div class="bg-[#232f3e] text-green-300 overflow-hidden py-3 text-sm">
-    <div class="flex gap-12 animate-marquee whitespace-nowrap">
-      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
-      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
-      <span>🌿 USDA Organic</span><span>☀️ Renewable Energy Made</span>
-      <span>🤝 Ethical Sourcing</span><span>💧 Water Neutral</span>
-      <span>🌱 Fair Trade Certified</span><span>♻️ Zero-Waste Packaging</span>
-      <span>🏆 B Corp Products</span><span>🌍 Carbon Offset Shipping</span>
-    </div>
-  </div>
-
-  <!-- ═══ FEATURED PRODUCTS ═══ -->
-  <div class="max-w-7xl mx-auto px-4 py-12" id="featured">
-    <div class="flex items-center justify-between mb-6">
+    <div class="relative z-10 flex items-center justify-center h-full text-center text-white">
       <div>
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Today's Eco Deals</span>
-        <h2 class="text-2xl font-bold mt-2">Featured <span class="text-green-700">Products</span></h2>
+        <h1 class="text-3xl md:text-5xl font-bold mb-4" id="heroTitle">Shop with the Planet in Mind 🌍</h1>
+        <p class="text-lg mb-6" id="heroSubtitle">Every product verified for ethical sourcing & sustainability</p>
+        <a href="#featured" class="deal-badge text-black px-8 py-3 rounded-md font-semibold hover:opacity-90 transition inline-block">
+          Shop Today's Deals →
+        </a>
       </div>
-      <a href="#featured" class="text-[#ff9900] font-semibold hover:underline text-sm">See all →</a>
-    </div>
-    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
-      <div class="bg-white rounded-lg h-64 animate-pulse"></div>
     </div>
   </div>
 
-  <!-- ═══ CATEGORIES ═══ -->
-  <div class="bg-white py-12" id="categories">
+  <!-- ═══ PRODUCT GRID - AMAZON STYLE ═══ -->
+  <div class="max-w-7xl mx-auto px-4 py-6" id="featured">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5" id="productsGrid"></div>
+  </div>
+
+  <!-- ═══ CATEGORIES SECTION ═══ -->
+  <div class="bg-white py-8 mt-4" id="categories">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Browse</span>
-        <h2 class="text-2xl font-bold mt-2">Our <span class="text-green-700">Sustainable</span> Categories</h2>
-      </div>
-      <div id="categoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-        <div class="bg-gray-100 rounded-lg h-32 animate-pulse"></div>
-      </div>
+      <h2 class="text-xl font-bold mb-4">Shop by Category</h2>
+      <div id="categoryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
     </div>
   </div>
 
-  <!-- ═══ IMPACT ═══ -->
-  <div class="bg-[#232f3e] text-white py-14" id="impact">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-      <div><i class="fas fa-tree text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">12,480</div><div class="text-green-300 mt-1">Trees Planted</div></div>
-      <div><i class="fas fa-recycle text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">4,750 kg</div><div class="text-green-300 mt-1">Plastic Saved</div></div>
-      <div><i class="fas fa-cloud-sun text-4xl text-[#ff9900] mb-3 block"></i><div class="text-4xl font-bold text-[#ff9900]">320 t</div><div class="text-green-300 mt-1">CO₂ Offset</div></div>
-    </div>
-  </div>
-
-  <!-- ═══ FEATURES ═══ -->
-  <div class="bg-green-900 text-white py-14">
+  <!-- ═══ INNOVATIVE: SUSTAINABILITY TRACKER ═══ -->
+  <div class="bg-gradient-to-r from-green-50 to-blue-50 py-8 mt-4">
     <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-300 bg-green-800 px-3 py-1 rounded-full">What Makes Us Different</span>
-        <h2 class="text-2xl font-bold mt-2">Features That <span class="text-[#ff9900]">Matter</span></h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🌡️</span><h3 class="font-bold text-lg mt-3 mb-2">Carbon Footprint Tracker</h3>
-          <p class="text-green-300 text-sm">Every product shows its exact carbon cost from farm to your front door.</p>
+      <h2 class="text-2xl font-bold text-center mb-6">🌱 Your Sustainability Impact</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="bg-white rounded-lg p-4 shadow-md">
+          <i class="fas fa-tree text-3xl text-green-600 mb-2"></i>
+          <div class="text-2xl font-bold text-green-600" id="userTrees">0</div>
+          <div class="text-sm">Trees Planted by You</div>
         </div>
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🏅</span><h3 class="font-bold text-lg mt-3 mb-2">Verified Sustainability Badges</h3>
-          <p class="text-green-300 text-sm">Third-party certifications — Fair Trade, B Corp, USDA Organic.</p>
+        <div class="bg-white rounded-lg p-4 shadow-md">
+          <i class="fas fa-recycle text-3xl text-blue-600 mb-2"></i>
+          <div class="text-2xl font-bold text-blue-600" id="userPlastic">0</div>
+          <div class="text-sm">kg Plastic Saved</div>
         </div>
-        <div class="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition">
-          <span class="text-3xl">🏭</span><h3 class="font-bold text-lg mt-3 mb-2">Local Warehouse Routing</h3>
-          <p class="text-green-300 text-sm">Ships from the nearest warehouse to minimise delivery emissions.</p>
+        <div class="bg-white rounded-lg p-4 shadow-md">
+          <i class="fas fa-cloud-sun text-3xl text-yellow-600 mb-2"></i>
+          <div class="text-2xl font-bold text-yellow-600" id="userCO2">0</div>
+          <div class="text-sm">kg CO₂ Offset</div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ REVIEWS ═══ -->
-  <div class="bg-gray-50 py-14">
-    <div class="max-w-7xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-bold uppercase tracking-widest text-green-700 bg-green-100 px-3 py-1 rounded-full">Community</span>
-        <h2 class="text-2xl font-bold mt-2">What Our <span class="text-green-700">Shoppers</span> Say</h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-green-200 flex items-center justify-center font-bold text-green-800">A</div>
-            <div><p class="font-semibold">Amara K.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 94</span>
-          </div>
-          <p class="text-gray-600 text-sm">"The Carbon Tracker blew my mind. I can literally see my impact before checking out."</p>
-        </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-amber-200 flex items-center justify-center font-bold text-amber-800">J</div>
-            <div><p class="font-semibold">James T.</p><p class="text-[#ff9900] text-sm">★★★★★</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 88</span>
-          </div>
-          <p class="text-gray-600 text-sm">"Switched from bottled supplements to refillable. Saved money AND the planet!"</p>
-        </div>
-        <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center font-bold text-blue-800">S</div>
-            <div><p class="font-semibold">Sofia R.</p><p class="text-[#ff9900] text-sm">★★★★☆</p></div>
-            <span class="ml-auto text-xs bg-green-900 text-white px-2 py-1 rounded-full">Green 79</span>
-          </div>
-          <p class="text-gray-600 text-sm">"Ships from a warehouse 8 miles away — the lowest delivery footprint I've ever seen."</p>
+        <div class="bg-white rounded-lg p-4 shadow-md">
+          <i class="fas fa-trophy text-3xl text-orange-600 mb-2"></i>
+          <div class="text-2xl font-bold text-orange-600" id="userPoints">0</div>
+          <div class="text-sm">Eco Points Earned</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══ CTA ═══ -->
-  <div class="bg-green-800 text-white py-14 text-center relative overflow-hidden">
-    <div class="absolute right-8 top-4 text-[10rem] opacity-5 pointer-events-none select-none">🍃</div>
-    <div class="relative z-10 max-w-lg mx-auto px-4">
-      <h2 class="text-3xl font-bold mb-2">Ready to Shop <span class="text-[#ff9900]">Sustainably?</span></h2>
-      <p class="text-green-200 mb-6">Join 200,000+ conscious shoppers making a difference.</p>
-      <div class="flex gap-2">
-        <input id="ctaEmail" type="email" placeholder="Enter your email…"
-          class="flex-1 px-4 py-3 rounded-l-md text-black outline-none">
-        <button id="ctaBtn" onclick="handleNewsletter()"
-          class="bg-[#ff9900] text-black px-6 py-3 rounded-r-md font-semibold hover:bg-[#fa8900] transition">
-          Join EcoWise
-        </button>
-      </div>
-      <p id="ctaNote" class="text-green-300 text-sm mt-3">No spam. Unsubscribe anytime. 🌿</p>
+  <!-- ═══ IMPACT STATS ═══ -->
+  <div class="bg-[#232f3e] text-white py-8 mt-4">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div><i class="fas fa-tree text-3xl text-[#ff9900] mb-2"></i><div class="text-2xl font-bold" id="countTrees">12,480</div><div class="text-sm">Trees Planted</div></div>
+      <div><i class="fas fa-recycle text-3xl text-[#ff9900] mb-2"></i><div class="text-2xl font-bold" id="countPlastic">4,750</div><div class="text-sm">kg Plastic Saved</div></div>
+      <div><i class="fas fa-cloud-sun text-3xl text-[#ff9900] mb-2"></i><div class="text-2xl font-bold" id="countCO2">320</div><div class="text-sm">tonnes CO₂ Offset</div></div>
+      <div><i class="fas fa-users text-3xl text-[#ff9900] mb-2"></i><div class="text-2xl font-bold">200K+</div><div class="text-sm">Happy Customers</div></div>
     </div>
   </div>
 
-  <!-- ═══ FOOTER ═══ -->
-  <footer class="bg-[#131921] text-gray-400 py-10">
-    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-      <div>
-        <div class="text-white text-xl font-bold mb-2">🌿 EcoWise<span class="text-[#ff9900]">Market</span></div>
-        <p class="text-sm">Turning shopping into a force for good.</p>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Shop</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#featured" class="hover:text-[#ff9900]">All Products</a></li><li><a href="#categories" class="hover:text-[#ff9900]">Categories</a></li></ul>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Features</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">Carbon Tracker</a></li><li><a href="#" class="hover:text-[#ff9900]">Impact Dashboard</a></li></ul>
-      </div>
-      <div><h4 class="text-white mb-3 font-semibold">Company</h4>
-        <ul class="space-y-1 text-sm"><li><a href="#" class="hover:text-[#ff9900]">About Us</a></li><li><a href="#" class="hover:text-[#ff9900]">Our Mission</a></li></ul>
-      </div>
+  <!-- ═══ FOOTER - AMAZON STYLE ═══ -->
+  <footer class="bg-[#232f3e] text-gray-400 mt-8">
+    <div class="bg-[#37475a] text-center py-3 hover:bg-[#485769] cursor-pointer">
+      <a href="#" class="text-white text-sm">Back to top</a>
     </div>
-    <div class="border-t border-gray-800 pt-6 text-center text-sm">© 2025 EcoWise Market. Built carbon-neutrally 🌍</div>
+    <div class="max-w-7xl mx-auto px-4 py-10 grid grid-cols-2 md:grid-cols-4 gap-8">
+      <div><h4 class="text-white font-bold mb-3">Get to Know Us</h4><ul class="space-y-1 text-sm"><li>About Us</li><li>Careers</li><li>Sustainability</li><li>Press Releases</li></ul></div>
+      <div><h4 class="text-white font-bold mb-3">Connect with Us</h4><ul class="space-y-1 text-sm"><li>Facebook</li><li>Twitter</li><li>Instagram</li><li>LinkedIn</li></ul></div>
+      <div><h4 class="text-white font-bold mb-3">Make Money with Us</h4><ul class="space-y-1 text-sm"><li>Sell on EcoWise</li><li>Become an Affiliate</li><li>Advertise Products</li></ul></div>
+      <div><h4 class="text-white font-bold mb-3">Let Us Help You</h4><ul class="space-y-1 text-sm"><li>Your Account</li><li>Returns Centre</li><li>100% Purchase Protection</li><li>Help</li></ul></div>
+    </div>
+    <div class="border-t border-gray-700 text-center py-6 text-sm">© 2025 EcoWise Market. Building a sustainable future 🌍</div>
   </footer>
 
   <!-- ═══ CART SIDEBAR ═══ -->
   <div id="cartOverlay" class="fixed inset-0 bg-black/50 z-40 hidden" onclick="toggleCart()"></div>
-  <div id="cartSidebar" class="fixed top-0 right-0 h-full w-80 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
+  <div id="cartSidebar" class="fixed top-0 right-0 h-full w-96 bg-white z-50 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col">
     <div class="flex items-center justify-between px-4 py-4 bg-[#131921] text-white">
-      <h3 class="font-bold text-lg">🛒 Your Cart</h3>
+      <h3 class="font-bold text-lg">🛒 Shopping Cart</h3>
       <button onclick="toggleCart()" class="text-gray-300 hover:text-white text-xl">✕</button>
     </div>
     <div id="cartItems" class="flex-1 overflow-y-auto p-4 space-y-3">
-      <p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>
+      <p class="text-gray-400 text-center mt-8">Your cart is empty.</p>
     </div>
     <div class="p-4 border-t">
       <div class="flex justify-between font-bold text-lg mb-3">
-        <span>Total:</span><span id="cartTotal">$0.00</span>
+        <span>Subtotal:</span><span id="cartTotal">$0.00</span>
       </div>
-      <button class="w-full bg-[#ff9900] text-black py-3 rounded-md font-semibold hover:bg-[#fa8900] transition">
-        Proceed to Checkout
+      <div class="text-sm text-gray-600 mb-3">FREE delivery available on orders over $50</div>
+      <button onclick="proceedToCheckout()" class="w-full deal-badge text-black py-3 rounded-md font-semibold hover:opacity-90 transition">
+        Proceed to Checkout →
+      </button>
+      <button onclick="continueShopping()" class="w-full mt-2 bg-gray-200 text-gray-800 py-2 rounded-md font-semibold hover:bg-gray-300 transition">
+        Continue Shopping
       </button>
     </div>
   </div>
 
-  <!-- ═══ NOTIFICATION ═══ -->
-  <div id="notification" class="fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 hidden">
-    <span id="notifMsg"></span>
+  <!-- ═══ CHECKOUT MODAL ═══ -->
+  <div id="checkoutModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-bold">Checkout</h2>
+          <button onclick="closeCheckout()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        <div id="checkoutContent"></div>
+      </div>
+    </div>
   </div>
 
-  <!-- ═══ JAVASCRIPT — all connected to Neon database ═══ -->
+  <!-- ═══ ADDRESS MODAL ═══ -->
+  <div id="addressModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
+      <h3 class="text-xl font-bold mb-4">Select Delivery Address</h3>
+      <div id="addressList" class="space-y-3 mb-4"></div>
+      <button onclick="addNewAddress()" class="w-full bg-gray-200 py-2 rounded-md mb-2">+ Add New Address</button>
+      <button onclick="closeAddressModal()" class="w-full border py-2 rounded-md">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ═══ PAYMENT MODAL ═══ -->
+  <div id="paymentModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-lg max-w-md w-full mx-4 p-6">
+      <h3 class="text-xl font-bold mb-4">Select Payment Method</h3>
+      <div id="paymentList" class="space-y-3 mb-4"></div>
+      <button onclick="addNewPayment()" class="w-full bg-gray-200 py-2 rounded-md mb-2">+ Add New Card</button>
+      <button onclick="closePaymentModal()" class="w-full border py-2 rounded-md">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST NOTIFICATION ═══ -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 hidden toast"></div>
+
   <script>
-    let allProducts = [];
-    let cartItems   = [];
-    const CUSTOMER_ID = 1;
+    // Translations
+    const translations = {
+      en: {
+        heroTitle: "Shop with the Planet in Mind 🌍",
+        heroSubtitle: "Every product verified for ethical sourcing & sustainability",
+        searchPlaceholder: "Search sustainable products...",
+        addToCart: "Add to Cart 🛒",
+        freeDelivery: "FREE delivery eligible",
+        proceedCheckout: "Proceed to Checkout →",
+        continueShopping: "Continue Shopping"
+      },
+      fr: {
+        heroTitle: "Achetez en pensant à la planète 🌍",
+        heroSubtitle: "Chaque produit vérifié pour un approvisionnement éthique et durable",
+        searchPlaceholder: "Rechercher des produits durables...",
+        addToCart: "Ajouter au panier 🛒",
+        freeDelivery: "Livraison gratuite éligible",
+        proceedCheckout: "Passer à la caisse →",
+        continueShopping: "Continuer les achats"
+      },
+      es: {
+        heroTitle: "Compra pensando en el planeta 🌍",
+        heroSubtitle: "Cada producto verificado por abastecimiento ético y sostenibilidad",
+        searchPlaceholder: "Buscar productos sostenibles...",
+        addToCart: "Agregar al carrito 🛒",
+        freeDelivery: "Envío gratis elegible",
+        proceedCheckout: "Proceder al pago →",
+        continueShopping: "Seguir comprando"
+      }
+    };
 
-    window.addEventListener('load', async () => {
-      await loadProducts();
-      await loadCategories();
-      await loadCart();
-      loadImpactStats();
-    });
+    // PRODUCTS WITH REAL IMAGES
+    const allProducts = [
+      { product_id: 1, product_name: "Bamboo Toothbrush Set (4 Pack)", base_price: 12.99, category: "Eco Home", rating: 4.5, reviews: 2342, image: "https://images.unsplash.com/photo-1607613009820-a29f7bb81c04?w=300", badge: "Best Seller", carbonFootprint: 0.5, ecoPoints: 50 },
+      { product_id: 2, product_name: "Organic Arabica Coffee Beans", base_price: 18.99, category: "Organic Food", rating: 4.8, reviews: 1892, image: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=300", badge: "Organic", carbonFootprint: 0.8, ecoPoints: 30 },
+      { product_id: 3, product_name: "Reusable Shopping Bags (6 Pack)", base_price: 9.99, category: "Zero Waste", rating: 4.6, reviews: 3451, image: "https://images.unsplash.com/photo-1597481499750-3e6b14537f24?w=300", badge: "Eco-Friendly", carbonFootprint: 0.3, ecoPoints: 80 },
+      { product_id: 4, product_name: "Solar Powered Lamp", base_price: 34.99, category: "Green Tech", rating: 4.7, reviews: 1234, image: "https://images.unsplash.com/photo-1558449028-b53a39d100fc?w=300", badge: "Limited Deal", carbonFootprint: 0.2, ecoPoints: 120 },
+      { product_id: 5, product_name: "Organic Cotton T-Shirt", base_price: 24.99, category: "Fashion", rating: 4.4, reviews: 987, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300", badge: "", carbonFootprint: 1.2, ecoPoints: 60 },
+      { product_id: 6, product_name: "Herbal Tea Sampler (24 bags)", base_price: 15.99, category: "Organic Food", rating: 4.9, reviews: 2341, image: "https://images.unsplash.com/photo-1597481499750-3e6b14537f24?w=300", badge: "Amazon's Choice", carbonFootprint: 0.4, ecoPoints: 40 },
+      { product_id: 7, product_name: "Compostable Phone Case", base_price: 19.99, category: "Green Tech", rating: 4.3, reviews: 567, image: "https://images.unsplash.com/photo-1606220588913-b3aac6ab1f41?w=300", badge: "", carbonFootprint: 0.6, ecoPoints: 70 },
+      { product_id: 8, product_name: "Bamboo Cutting Board", base_price: 28.99, category: "Eco Home", rating: 4.7, reviews: 876, image: "https://images.unsplash.com/photo-1585674881492-89b3c1dac2c3?w=300", badge: "", carbonFootprint: 0.7, ecoPoints: 55 }
+    ];
 
-    async function loadProducts() {
-      try {
-        const res = await fetch('/api/products');
-        allProducts = await res.json();
-        renderProducts(allProducts);
-      } catch {
-        document.getElementById('productsGrid').innerHTML =
-          '<p class="col-span-4 text-center text-gray-500 py-8">Could not load products.</p>';
+    const categories = [
+      { category_id: 1, category_name: "Eco Home", icon: "🏡", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=200" },
+      { category_id: 2, category_name: "Organic Food", icon: "🥦", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=200" },
+      { category_id: 3, category_name: "Fashion", icon: "👗", image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=200" },
+      { category_id: 4, category_name: "Zero Waste", icon: "♻️", image: "https://images.unsplash.com/photo-1532991307550-5c38695b2c65?w=200" },
+      { category_id: 5, category_name: "Green Tech", icon: "🔋", image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=200" }
+    ];
+
+    let cartItems = JSON.parse(localStorage.getItem('ecowise_cart') || '[]');
+    let orders = JSON.parse(localStorage.getItem('ecowise_orders') || '[]');
+    let addresses = JSON.parse(localStorage.getItem('ecowise_addresses') || '[]');
+    let paymentMethods = JSON.parse(localStorage.getItem('ecowise_payments') || '[]');
+    let wishlist = JSON.parse(localStorage.getItem('ecowise_wishlist') || '[]');
+    let userEcoPoints = parseInt(localStorage.getItem('ecowise_points') || '0');
+    let currentLanguage = localStorage.getItem('ecowise_language') || 'en';
+
+    // Initialize default addresses if empty
+    if (addresses.length === 0) {
+      addresses = [
+        { id: 1, name: "Home", street: "123 Main Street", city: "Douala", country: "Cameroon", zip: "00000", isDefault: true }
+      ];
+      localStorage.setItem('ecowise_addresses', JSON.stringify(addresses));
+    }
+
+    if (paymentMethods.length === 0) {
+      paymentMethods = [
+        { id: 1, type: "Visa", last4: "4242", expiry: "12/25", isDefault: true }
+      ];
+      localStorage.setItem('ecowise_payments', JSON.stringify(paymentMethods));
+    }
+
+    // Apply language
+    function changeLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('ecowise_language', lang);
+      document.getElementById('currentLanguage').textContent = lang.toUpperCase();
+      
+      const t = translations[lang] || translations.en;
+      document.getElementById('heroTitle').textContent = t.heroTitle;
+      document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
+      document.getElementById('searchInput').placeholder = t.searchPlaceholder;
+      
+      showToast(`Language changed to ${lang.toUpperCase()}`, 'success');
+      renderProducts(allProducts); // Re-render with new language
+    }
+
+    // Voice search
+    function voiceSearch() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.start();
+        
+        const btn = document.getElementById('voiceSearchBtn');
+        btn.classList.add('listening');
+        
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          document.getElementById('searchInput').value = transcript;
+          handleSearch();
+          btn.classList.remove('listening');
+        };
+        
+        recognition.onerror = () => {
+          btn.classList.remove('listening');
+          showToast('Voice search failed. Please try again.', 'error');
+        };
+      } else {
+        showToast('Voice search not supported in your browser', 'error');
       }
     }
 
-    async function loadCategories() {
-      try {
-        const res  = await fetch('/api/categories');
-        const cats = await res.json();
-        renderCategories(cats);
-      } catch {
-        document.getElementById('categoryGrid').innerHTML =
-          '<p class="col-span-5 text-center text-gray-500">Could not load categories.</p>';
-      }
-    }
-
-    async function loadCart() {
-      try {
-        const res = await fetch(`/api/cart/${CUSTOMER_ID}`);
-        cartItems = await res.json();
-        renderCart();
-      } catch { cartItems = []; }
-    }
-
-    function renderProducts(products) {
-      const grid = document.getElementById('productsGrid');
-      if (!products.length) {
-        grid.innerHTML = '<p class="col-span-4 text-center text-gray-500 py-8">No products found. 🌿</p>';
+    // Checkout functions
+    function proceedToCheckout() {
+      if (cartItems.length === 0) {
+        showToast('Your cart is empty!', 'error');
         return;
       }
-      grid.innerHTML = products.map(p => `
-        <div class="bg-white rounded-lg shadow-md p-4 hover:shadow-xl transition-shadow flex flex-col">
-          <div class="text-6xl text-center py-4 bg-green-50 rounded-lg mb-3">${getEmoji(p.product_name)}</div>
-          <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full w-fit mb-2">🌱 Eco-Friendly</span>
-          <h3 class="font-semibold text-gray-800 flex-1 text-sm">${escHtml(p.product_name)}</h3>
-          <div class="flex items-center justify-between mt-2">
-            <span class="text-xl font-bold text-green-700">$${parseFloat(p.base_price).toFixed(2)}</span>
-            <span class="text-xs text-gray-500">🌍 ${(Math.random()*4+0.3).toFixed(1)} kg CO₂</span>
+      showCheckoutModal();
+    }
+
+    function showCheckoutModal() {
+      const modal = document.getElementById('checkoutModal');
+      const content = document.getElementById('checkoutContent');
+      
+      const subtotal = cartItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const shipping = subtotal > 50 ? 0 : 5.99;
+      const tax = subtotal * 0.05;
+      const total = subtotal + shipping + tax;
+      
+      const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+      const defaultPayment = paymentMethods.find(p => p.isDefault) || paymentMethods[0];
+      
+      content.innerHTML = `
+        <div class="space-y-6">
+          <div class="border rounded-lg p-4">
+            <h3 class="font-bold mb-2">📦 Delivery Address</h3>
+            <div id="checkoutAddress">
+              <p>${defaultAddress?.street || 'No address'}</p>
+              <p>${defaultAddress?.city}, ${defaultAddress?.country}</p>
+            </div>
+            <button onclick="openAddressModal()" class="text-blue-600 text-sm mt-2">Change Address</button>
           </div>
-          <button onclick="addToCart(${p.product_id}, '${escHtml(p.product_name)}', ${p.base_price})"
-            class="w-full mt-3 bg-[#ff9900] text-black py-2 rounded-md font-semibold hover:bg-[#fa8900] transition text-sm">
-            Add to Cart 🛒
+          
+          <div class="border rounded-lg p-4">
+            <h3 class="font-bold mb-2">💳 Payment Method</h3>
+            <div id="checkoutPayment">
+              <p>${defaultPayment?.type} ending in ${defaultPayment?.last4}</p>
+            </div>
+            <button onclick="openPaymentModal()" class="text-blue-600 text-sm mt-2">Change Payment</button>
+          </div>
+          
+          <div class="border rounded-lg p-4">
+            <h3 class="font-bold mb-2">🛒 Order Summary</h3>
+            <div class="space-y-2 text-sm">
+              ${cartItems.map(item => `
+                <div class="flex justify-between">
+                  <span>${item.name} x ${item.quantity}</span>
+                  <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                </div>
+              `).join('')}
+              <div class="border-t pt-2">
+                <div class="flex justify-between"><span>Subtotal:</span><span>$${subtotal.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span>Shipping:</span><span>${shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span>Tax (5%):</span><span>$${tax.toFixed(2)}</span></div>
+                <div class="flex justify-between font-bold text-lg pt-2"><span>Total:</span><span>$${total.toFixed(2)}</span></div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-green-50 p-4 rounded-lg">
+            <p class="text-sm text-green-700">🌱 This purchase will earn you ${Math.floor(subtotal)} Eco Points!</p>
+          </div>
+          
+          <button onclick="placeOrder()" class="w-full deal-badge text-black py-3 rounded-md font-bold">
+            Place Your Order
           </button>
         </div>
-      `).join('');
+      `;
+      
+      modal.classList.remove('hidden');
     }
 
-    function renderCategories(cats) {
-      const icons = { 'Eco Home':'🏡','Organic Food':'🥦','Fashion':'👗','Cleaning':'🧼','Beverages':'🍵' };
-      document.getElementById('categoryGrid').innerHTML = cats.map(c => `
-        <div onclick="filterByCategory('${escHtml(c.category_name)}')"
-          class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-green-500 hover:shadow-md transition flex flex-col items-center gap-2">
-          <span class="text-4xl">${icons[c.category_name] || '🌿'}</span>
-          <h3 class="font-semibold text-gray-800 text-sm">${escHtml(c.category_name)}</h3>
-          <span class="text-xs text-gray-500">Sustainable products</span>
+    function placeOrder() {
+      const subtotal = cartItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const ecoPointsEarned = Math.floor(subtotal);
+      
+      const order = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        items: [...cartItems],
+        subtotal: subtotal,
+        total: subtotal + (subtotal > 50 ? 0 : 5.99) + (subtotal * 0.05),
+        status: 'Confirmed'
+      };
+      
+      orders.push(order);
+      localStorage.setItem('ecowise_orders', JSON.stringify(orders));
+      
+      // Add eco points
+      userEcoPoints += ecoPointsEarned;
+      localStorage.setItem('ecowise_points', userEcoPoints);
+      updateUserImpact();
+      
+      // Clear cart
+      cartItems = [];
+      localStorage.setItem('ecowise_cart', JSON.stringify(cartItems));
+      renderCart();
+      
+      closeCheckout();
+      showToast(`Order placed successfully! You earned ${ecoPointsEarned} Eco Points! 🎉`, 'success');
+      
+      // Show order confirmation
+      setTimeout(() => {
+        alert(`✅ Order Confirmed!\n\nOrder #${order.id}\nTotal: $${order.total.toFixed(2)}\nEco Points Earned: ${ecoPointsEarned}\n\nThank you for shopping sustainably! 🌍`);
+      }, 500);
+    }
+
+    function closeCheckout() {
+      document.getElementById('checkoutModal').classList.add('hidden');
+    }
+
+    function openAddressModal() {
+      closeCheckout();
+      const modal = document.getElementById('addressModal');
+      const list = document.getElementById('addressList');
+      
+      list.innerHTML = addresses.map(addr => `
+        <div class="border rounded-lg p-3 cursor-pointer hover:bg-gray-50 ${addr.isDefault ? 'bg-green-50 border-green-500' : ''}" onclick="selectAddress(${addr.id})">
+          <p class="font-semibold">${addr.name}</p>
+          <p class="text-sm">${addr.street}, ${addr.city}, ${addr.country}</p>
+          ${addr.isDefault ? '<span class="text-xs text-green-600">✓ Default</span>' : ''}
+        </div>
+      `).join('');
+      
+      modal.classList.remove('hidden');
+    }
+
+    function selectAddress(id) {
+      addresses = addresses.map(addr => ({ ...addr, isDefault: addr.id === id }));
+      localStorage.setItem('ecowise_addresses', JSON.stringify(addresses));
+      closeAddressModal();
+      showCheckoutModal();
+      showToast('Address updated!', 'success');
+    }
+
+    function closeAddressModal() {
+      document.getElementById('addressModal').classList.add('hidden');
+    }
+
+    function addNewAddress() {
+      const newAddress = {
+        id: Date.now(),
+        name: "New Address",
+        street: prompt("Enter street address:"),
+        city: prompt("Enter city:"),
+        country: "Cameroon",
+        zip: prompt("Enter ZIP code:"),
+        isDefault: false
+      };
+      addresses.push(newAddress);
+      localStorage.setItem('ecowise_addresses', JSON.stringify(addresses));
+      openAddressModal();
+    }
+
+    function openPaymentModal() {
+      closeCheckout();
+      const modal = document.getElementById('paymentModal');
+      const list = document.getElementById('paymentList');
+      
+      list.innerHTML = paymentMethods.map(pm => `
+        <div class="border rounded-lg p-3 cursor-pointer hover:bg-gray-50 ${pm.isDefault ? 'bg-green-50 border-green-500' : ''}" onclick="selectPayment(${pm.id})">
+          <p class="font-semibold">${pm.type} •••• ${pm.last4}</p>
+          <p class="text-sm">Expires ${pm.expiry}</p>
+          ${pm.isDefault ? '<span class="text-xs text-green-600">✓ Default</span>' : ''}
+        </div>
+      `).join('');
+      
+      modal.classList.remove('hidden');
+    }
+
+    function selectPayment(id) {
+      paymentMethods = paymentMethods.map(pm => ({ ...pm, isDefault: pm.id === id }));
+      localStorage.setItem('ecowise_payments', JSON.stringify(paymentMethods));
+      closePaymentModal();
+      showCheckoutModal();
+      showToast('Payment method updated!', 'success');
+    }
+
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.add('hidden');
+    }
+
+    function addNewPayment() {
+      const newPayment = {
+        id: Date.now(),
+        type: prompt("Card type (Visa/Mastercard):"),
+        last4: prompt("Last 4 digits:"),
+        expiry: prompt("Expiry (MM/YY):"),
+        isDefault: false
+      };
+      paymentMethods.push(newPayment);
+      localStorage.setItem('ecowise_payments', JSON.stringify(paymentMethods));
+      openPaymentModal();
+    }
+
+    function continueShopping() {
+      toggleCart();
+    }
+
+    function viewOrders() {
+      if (orders.length === 0) {
+        showToast("You haven't placed any orders yet", 'info');
+        return;
+      }
+      let orderList = "📦 Your Orders:\n\n";
+      orders.forEach(order => {
+        orderList += `Order #${order.id}\nDate: ${new Date(order.date).toLocaleDateString()}\nTotal: $${order.total.toFixed(2)}\nStatus: ${order.status}\n---\n`;
+      });
+      alert(orderList);
+    }
+
+    function viewWishlist() {
+      if (wishlist.length === 0) {
+        showToast("Your wishlist is empty", 'info');
+        return;
+      }
+      alert("❤️ Wishlist Items:\n" + wishlist.map(item => `- ${item.name}`).join('\n'));
+    }
+
+    function viewAddresses() {
+      openAddressModal();
+    }
+
+    function viewPaymentMethods() {
+      openPaymentModal();
+    }
+
+    function updateUserImpact() {
+      document.getElementById('userPoints').textContent = userEcoPoints;
+      // Simulate impact based on points
+      document.getElementById('userTrees').textContent = Math.floor(userEcoPoints / 100);
+      document.getElementById('userPlastic').textContent = Math.floor(userEcoPoints / 50);
+      document.getElementById('userCO2').textContent = Math.floor(userEcoPoints / 10);
+    }
+
+    function openSustainabilityTracker() {
+      showToast("🌱 Sustainability Tracker: You've saved " + document.getElementById('userPlastic').textContent + "kg of plastic!", 'success');
+    }
+
+    function openCarbonCalculator() {
+      const footprint = cartItems.reduce((s, i) => {
+        const product = allProducts.find(p => p.product_id === i.id);
+        return s + (product?.carbonFootprint || 0) * i.quantity;
+      }, 0);
+      alert(`🌍 Carbon Footprint Calculator\n\nYour cart's carbon footprint: ${footprint.toFixed(2)} kg CO₂\n\nDid you know? Each tree planted offsets 22kg of CO₂ per year!`);
+    }
+
+    function openCommunityMarket() {
+      showToast("🤝 Community Market - Coming Soon! Trade with local eco-warriors!", 'info');
+    }
+
+    function openLiveSupport() {
+      showToast("💬 Live Support: How can we help you today?", 'info');
+    }
+
+    function openLocationModal() {
+      const location = prompt("Enter your delivery location:", document.getElementById('deliveryLocation').textContent);
+      if (location) {
+        document.getElementById('deliveryLocation').textContent = location;
+        showToast(`Delivery location updated to ${location}`, 'success');
+      }
+    }
+
+    // Render products
+    function renderProducts(products) {
+      const t = translations[currentLanguage] || translations.en;
+      const grid = document.getElementById('productsGrid');
+      grid.innerHTML = products.map(p => `
+        <div class="product-card bg-white rounded-md p-4 transition-all duration-200 cursor-pointer relative">
+          ${p.badge ? `<span class="deal-badge text-black text-xs px-2 py-1 rounded absolute top-2 left-2 font-bold z-10">${p.badge}</span>` : ''}
+          <div class="h-48 flex items-center justify-center bg-gray-50 rounded-md overflow-hidden">
+            <img src="${p.image}" alt="${p.product_name}" class="max-h-full max-w-full object-contain hover:scale-105 transition">
+          </div>
+          <div class="mt-3">
+            <h3 class="font-medium text-sm text-gray-800 line-clamp-2">${p.product_name}</h3>
+            <div class="flex items-center mt-1">
+              <div class="rating-stars text-sm">${'★'.repeat(Math.floor(p.rating))}${p.rating % 1 ? '½' : ''}</div>
+              <span class="text-xs text-gray-500 ml-1">(${p.reviews.toLocaleString()})</span>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-bold text-gray-900">$${p.base_price}</span>
+              <span class="text-xs text-gray-500 line-through ml-2">$${(p.base_price * 1.2).toFixed(2)}</span>
+            </div>
+            <div class="text-xs text-green-700 mt-1">${t.freeDelivery}</div>
+            <div class="text-xs text-blue-600 mt-1">🌱 Earns ${p.ecoPoints} Eco Points</div>
+            <button onclick="addToCart(${p.product_id}, '${p.product_name.replace(/'/g, "\\'")}', ${p.base_price})"
+              class="w-full mt-3 bg-[#ffd814] hover:bg-[#f7ca00] text-black py-2 rounded-md font-semibold transition text-sm">
+              ${t.addToCart}
+            </button>
+            <button onclick="addToWishlist(${p.product_id}, '${p.product_name.replace(/'/g, "\\'")}', ${p.base_price})"
+              class="w-full mt-2 text-gray-500 text-xs hover:text-red-500 transition">
+              ❤️ Add to Wishlist
+            </button>
+          </div>
         </div>
       `).join('');
     }
 
+    function addToWishlist(id, name, price) {
+      if (!wishlist.find(item => item.id === id)) {
+        wishlist.push({ id, name, price });
+        localStorage.setItem('ecowise_wishlist', JSON.stringify(wishlist));
+        showToast(`Added "${name}" to wishlist! ❤️`, 'success');
+      } else {
+        showToast(`"${name}" is already in your wishlist`, 'info');
+      }
+    }
+
+    // Render categories
+    function renderCategories() {
+      const grid = document.getElementById('categoryGrid');
+      grid.innerHTML = categories.map(c => `
+        <div onclick="filterByCategory('${c.category_name}')" class="bg-white border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition">
+          <img src="${c.image}" alt="${c.category_name}" class="w-full h-32 object-cover">
+          <div class="p-3 text-center">
+            <span class="text-2xl mr-1">${c.icon}</span>
+            <span class="font-medium text-sm">${c.category_name}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Cart functions
     function renderCart() {
-      const el    = document.getElementById('cartItems');
-      const total = document.getElementById('cartTotal');
-      const count = document.getElementById('cartCount');
+      const count = cartItems.reduce((s, i) => s + i.quantity, 0);
+      const total = cartItems.reduce((s, i) => s + (i.price * i.quantity), 0);
+      document.getElementById('cartCount').textContent = count;
+      document.getElementById('cartTotal').textContent = `$${total.toFixed(2)}`;
+      
+      const cartEl = document.getElementById('cartItems');
       if (!cartItems.length) {
-        el.innerHTML = '<p class="text-gray-400 text-center mt-8">Your cart is empty. 🌿</p>';
-        if (total) total.textContent = '$0.00';
-        if (count) count.textContent = '0';
+        cartEl.innerHTML = '<p class="text-gray-400 text-center mt-8">Your cart is empty.</p>';
         return;
       }
-      let sum = 0;
-      el.innerHTML = cartItems.map(item => {
-        const qty = parseInt(item.quantity) || 1;
-        const price = parseFloat(item.base_price) || 0;
-        sum += qty * price;
-        return `
-          <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-3">
-            <span class="text-2xl">${getEmoji(item.product_name)}</span>
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold truncate">${escHtml(item.product_name)}</p>
-              <p class="text-xs text-gray-500">$${price.toFixed(2)} × ${qty}</p>
+      cartEl.innerHTML = cartItems.map(item => `
+        <div class="flex gap-3 bg-gray-50 rounded-lg p-3">
+          <img src="${item.image}" class="w-16 h-16 object-cover rounded">
+          <div class="flex-1">
+            <p class="text-sm font-semibold">${item.name}</p>
+            <p class="text-xs text-gray-500">$${item.price.toFixed(2)}</p>
+            <div class="flex items-center gap-2 mt-2">
+              <button onclick="updateCart(${item.id}, ${item.quantity - 1})" class="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300">−</button>
+              <span class="text-sm w-5 text-center">${item.quantity}</span>
+              <button onclick="updateCart(${item.id}, ${item.quantity + 1})" class="w-6 h-6 bg-gray-200 rounded hover:bg-gray-300">+</button>
+              <button onclick="removeFromCart(${item.id})" class="text-red-500 text-xs ml-2">Delete</button>
             </div>
-            <div class="flex items-center gap-1">
-              <button onclick="updateCart(${item.product_id},${qty-1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">−</button>
-              <span class="text-sm font-bold w-5 text-center">${qty}</span>
-              <button onclick="updateCart(${item.product_id},${qty+1})" class="w-6 h-6 bg-gray-200 rounded text-sm font-bold hover:bg-gray-300">+</button>
-              <button onclick="removeFromCart(${item.product_id})" class="w-6 h-6 bg-red-100 text-red-600 rounded text-xs hover:bg-red-200 ml-1">✕</button>
-            </div>
-          </div>`;
-      }).join('');
-      if (total) total.textContent = `$${sum.toFixed(2)}`;
-      if (count) count.textContent = cartItems.reduce((s,i) => s + (parseInt(i.quantity)||1), 0);
+          </div>
+        </div>
+      `).join('');
     }
 
-    async function addToCart(productId, name, price) {
-      try {
-        await fetch('/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ customer_id: CUSTOMER_ID, product_id: productId, quantity: 1 })
-        });
-        await loadCart();
-        showNotif(`Added ${name} to cart! 🛒`, 'success');
-      } catch { showNotif('Could not add to cart.', 'error'); }
+    function addToCart(id, name, price) {
+      const product = allProducts.find(p => p.product_id === id);
+      const existing = cartItems.find(i => i.id === id);
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cartItems.push({ id, name, price, quantity: 1, image: product.image });
+      }
+      localStorage.setItem('ecowise_cart', JSON.stringify(cartItems));
+      renderCart();
+      showToast(`Added "${name}" to cart! 🛒`, 'success');
     }
 
-    async function updateCart(productId, quantity) {
-      if (quantity <= 0) return removeFromCart(productId);
-      try {
-        await fetch(`/api/cart/${CUSTOMER_ID}/${productId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quantity })
-        });
-        await loadCart();
-      } catch { showNotif('Could not update cart.', 'error'); }
+    function updateCart(id, qty) {
+      if (qty <= 0) return removeFromCart(id);
+      const item = cartItems.find(i => i.id === id);
+      if (item) {
+        item.quantity = qty;
+        localStorage.setItem('ecowise_cart', JSON.stringify(cartItems));
+        renderCart();
+      }
     }
 
-    async function removeFromCart(productId) {
-      try {
-        await fetch(`/api/cart/${CUSTOMER_ID}/${productId}`, { method: 'DELETE' });
-        await loadCart();
-        showNotif('Item removed.', 'info');
-      } catch { showNotif('Could not remove item.', 'error'); }
+    function removeFromCart(id) {
+      cartItems = cartItems.filter(i => i.id !== id);
+      localStorage.setItem('ecowise_cart', JSON.stringify(cartItems));
+      renderCart();
+      showToast('Item removed from cart', 'info');
     }
 
     function handleSearch() {
-      const term = (document.getElementById('searchInput')?.value || '').toLowerCase();
-      const filtered = allProducts.filter(p => p.product_name.toLowerCase().includes(term));
-      renderProducts(filtered);
-      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
-    }
-    document.getElementById('searchInput')?.addEventListener('keyup', e => { if (e.key === 'Enter') handleSearch(); });
-
-    function filterByCategory(name) {
-      const keywords = {
-        'Eco Home':['bamboo','solar','lamp','home','candle','cutting'],
-        'Organic Food':['organic','coffee','seed','grain'],
-        'Fashion':['shirt','dress','cotton','wear','fashion'],
-        'Cleaning':['soap','cleaner','detergent','brush','laundry'],
-        'Beverages':['tea','juice','water','drink','beverage','bottle','herbal']
-      };
-      const kws = keywords[name] || [name.toLowerCase()];
-      const filtered = allProducts.filter(p => kws.some(k => p.product_name.toLowerCase().includes(k)));
-      renderProducts(filtered.length ? filtered : allProducts);
-      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
-      showNotif(`Showing ${name} products`, 'info');
-    }
-
-    async function loadImpactStats() {
-      try {
-        const res = await fetch('/api/orders');
-        const orders = await res.json();
-        const c = orders.length;
-        animateNum(document.getElementById('countTrees'),   84  + Math.floor(c * 0.7));
-        animateNum(document.getElementById('countPlastic'), 126 + Math.floor(c * 1.2));
-        animateNum(document.getElementById('countCO2'),     245 + Math.floor(c * 2.5));
-      } catch {}
-    }
-
-    function animateNum(el, target) {
-      if (!el) return;
-      let cur = 0; const step = target / 50;
-      const t = setInterval(() => {
-        cur += step;
-        if (cur >= target) { el.textContent = target; clearInterval(t); }
-        else el.textContent = Math.floor(cur);
-      }, 40);
-    }
-
-    function handleNewsletter() {
-      const email = document.getElementById('ctaEmail')?.value.trim();
-      const note  = document.getElementById('ctaNote');
-      const btn   = document.getElementById('ctaBtn');
-      if (!email || !email.includes('@')) {
-        if (note) { note.textContent = 'Please enter a valid email. 🌿'; note.style.color = '#fca5a5'; }
+      const term = document.getElementById('searchInput')?.value.toLowerCase();
+      const category = document.getElementById('searchCategory')?.value;
+      if (!term && category === 'all') {
+        renderProducts(allProducts);
         return;
       }
-      if (btn) { btn.textContent = 'Subscribing…'; btn.disabled = true; }
-      setTimeout(() => {
-        if (note) { note.textContent = 'Welcome to EcoWise! 🌿'; note.style.color = '#86efac'; }
-        if (btn)  { btn.textContent = 'Join EcoWise'; btn.disabled = false; }
-        document.getElementById('ctaEmail').value = '';
-        showNotif('Successfully subscribed!', 'success');
-      }, 1000);
+      let filtered = allProducts.filter(p => p.product_name.toLowerCase().includes(term || ''));
+      if (category !== 'all') {
+        filtered = filtered.filter(p => p.category === category);
+      }
+      renderProducts(filtered);
+      showToast(`Found ${filtered.length} products`, 'info');
+    }
+
+    function filterByCategory(cat) {
+      const filtered = allProducts.filter(p => p.category === cat);
+      renderProducts(filtered);
+      document.getElementById('featured')?.scrollIntoView({ behavior: 'smooth' });
+      showToast(`Showing ${cat} products`, 'info');
     }
 
     function toggleCart() {
@@ -474,35 +897,61 @@
       document.getElementById('cartOverlay').classList.toggle('hidden');
     }
 
-    function showNotif(msg, type = 'success') {
-      const el = document.getElementById('notification');
-      const colors = { success:'bg-green-800', error:'bg-red-700', info:'bg-blue-700' };
-      el.className = `fixed bottom-6 right-6 text-white px-5 py-3 rounded-lg shadow-lg z-50 ${colors[type]}`;
-      document.getElementById('notifMsg').textContent = msg;
-      el.classList.remove('hidden');
-      setTimeout(() => el.classList.add('hidden'), 3000);
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `fixed bottom-6 right-6 px-6 py-3 rounded-lg shadow-lg z-50 toast ${type === 'error' ? 'bg-red-500' : type === 'info' ? 'bg-blue-500' : 'bg-green-500'} text-white`;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
     }
 
-    function getEmoji(name = '') {
-      const n = name.toLowerCase();
-      if (n.includes('bamboo'))  return '🎋';
-      if (n.includes('solar'))   return '☀️';
-      if (n.includes('tea') || n.includes('herbal')) return '🍵';
-      if (n.includes('coffee'))  return '☕';
-      if (n.includes('organic')) return '🥬';
-      if (n.includes('shirt') || n.includes('cotton') || n.includes('dress')) return '👕';
-      if (n.includes('soap') || n.includes('clean') || n.includes('detergent') || n.includes('laundry')) return '🧼';
-      if (n.includes('water') || n.includes('bottle')) return '💧';
-      if (n.includes('juice')) return '🥤';
-      if (n.includes('lamp'))  return '💡';
-      if (n.includes('cutting') || n.includes('board')) return '🪵';
-      return '🌱';
+    // Auth functions
+    function updateAuthUI() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+      const userName = localStorage.getItem('userName') || '';
+      const userRole = localStorage.getItem('userRole') || '';
+      
+      const authButtons = document.getElementById('authButtons');
+      const userInfo = document.getElementById('userInfo');
+      const userNameSpan = document.getElementById('userName');
+      const adminLink = document.getElementById('adminLink');
+      
+      if (isLoggedIn) {
+        authButtons.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        userNameSpan.textContent = userName;
+        if (adminLink && userRole === 'admin') {
+          adminLink.classList.remove('hidden');
+        }
+        updateUserImpact();
+      } else {
+        authButtons.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        if (adminLink) adminLink.classList.add('hidden');
+      }
     }
 
-    function escHtml(str) {
-      return String(str || '').replace(/[&<>"']/g, m =>
-        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    function logout() {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userRole');
+      updateAuthUI();
+      showToast('Logged out successfully', 'info');
+      setTimeout(() => window.location.reload(), 1000);
     }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      updateAuthUI();
+      renderProducts(allProducts);
+      renderCategories();
+      renderCart();
+      updateUserImpact();
+      changeLanguage(currentLanguage);
+      document.getElementById('searchInput')?.addEventListener('keyup', e => {
+        if (e.key === 'Enter') handleSearch();
+      });
+    });
   </script>
 </body>
 </html>
